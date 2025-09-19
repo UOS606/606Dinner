@@ -7,7 +7,7 @@ import styles from "./App.module.css";
 import FindPWModal from "./components/FindPWModal";
 
 function Home() {
-  return null; // 초기 홈은 비워두기
+  return null; // 초기 홈은 비워두기 branch
 }
 
 function Story() {
