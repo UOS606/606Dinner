@@ -15,7 +15,14 @@ const NavBar = ({ onLoginClick, onSignupClick }) => {
       <div className={styles.menu}>
         <Link to="/story">STORY</Link>
         <Link to="/menu">MENU</Link>
-        <Link to="/order">ORDER</Link>
+        <div className={styles.dropdown}>
+          <span className={styles.dropdownToggle}>ORDER</span>
+          <div className={styles.dropdownMenu}>
+            <Link to="/order/cart">장바구니</Link>
+            <Link to="/order/current">현재 주문 내역</Link>
+            <Link to="/order/history">이전 주문 내역</Link>
+          </div>
+        </div>
       </div>
 
       <div className={styles.actions}>

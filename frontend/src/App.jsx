@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home"; // 추가
 import NavBar from "./components/NavBar";
 import LoginModal from "./components/LoginModal";
 import SignupModal from "./components/SignupModal"; // 새로 만드셔야 함
 import styles from "./App.module.css";
 import FindPWModal from "./components/FindPWModal";
-
-function Home() {
-  return null; // 초기 홈은 비워두기 branch test 3
-}
+import Menu from "./components/menu/Menu"; // 추가
+import Cart from "./components/order/Cart";
+import CurrentOrder from "./components/order/CurrentOrder";
+import OrderHistory from "./components/order/OrderHistory";
 
 function Story() {
   return (
@@ -58,8 +59,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/story" element={<Story />} />
-        <Route path="/menu" element={<Home />} />
-        <Route path="/order" element={<Home />} />
+        <Route path="/menu" element={<Menu />} /> {/* 🔹 Menu 컴포넌트 연결 */}
+        <Route path="/order/cart" element={<Cart />} />
+        <Route path="/order/current" element={<CurrentOrder />} />
+        <Route path="/order/history" element={<OrderHistory />} />
       </Routes>
 
       {showLogin && (
