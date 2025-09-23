@@ -59,9 +59,13 @@ const NavBar = ({
 
       <div className={styles.actions}>
         {isLoggedIn ? (
-          <button onClick={handleLogout}>로그아웃</button>
+          <button onClick={handleLogout} className={styles.loginBtn}>
+            로그아웃
+          </button>
         ) : (
-          <button onClick={onLoginClick}>로그인</button>
+          <button onClick={onLoginClick} className={styles.loginBtn}>
+            로그인
+          </button>
         )}
         <button className={styles.signupBtn} onClick={onSignupClick}>
           회원가입
