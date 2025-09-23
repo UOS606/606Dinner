@@ -1,0 +1,118 @@
+/* 기본 스타일은 글로벌로 설정 (index.css 등) */
+/* 여기는 NavBar 전용 CSS 모듈 */
+
+/* 네비게이션 바 */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+  background-color: #fff;
+  border-bottom: 2px solid #eee;
+}
+
+/* 로고 */
+.logo img {
+  height: 80px;
+}
+
+/* 중앙 메뉴 */
+.menu {
+  display: flex;
+  gap: 30px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.menu a {
+  text-decoration: none;
+  color: var(--primary-blue, #0066b3);
+}
+
+.menu a:hover {
+  color: var(--primary-red, #e41e26);
+}
+
+/* 오른쪽 버튼 */
+.actions {
+  display: flex;
+  gap: 15px;
+}
+
+.actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.actions button:hover {
+  opacity: 0.85;
+}
+
+.loginBtn {
+  background-color: var(--primary-blue, #0066b3);
+  color: white;
+}
+
+.signupBtn {
+  background-color: var(--primary-red, #e41e26);
+  color: white;
+}
+
+/* 드롭다운 컨테이너 */
+.dropdown {
+  position: relative;
+}
+
+/* ORDER 텍스트 */
+.dropdownToggle {
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--primary-blue, #0066b3);
+}
+
+/* 드롭다운 메뉴 */
+.dropdownMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  flex-direction: column;
+  border-radius: 5px;
+  overflow: hidden;
+  padding: 5px 0;
+}
+
+/* 드롭다운 내부 버튼 */
+.dropdownMenu button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.dropdownMenu button:hover {
+  background-color: #f9f9f9;
+  color: var(--primary-red, #e41e26);
+  font-weight: bold;
+}
+
+/* hover 시 메뉴 보이기 */
+.dropdown:hover .dropdownMenu {
+  display: flex;
+  flex-direction: column;
+}
