@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styles from "./OrderModal.module.css";
 
-// 메뉴별 아이템 및 기본 수량
 const menuItemsData = {
   Valentine: [
     { name: "와인", defaultQty: 1 },
@@ -28,7 +27,7 @@ const menuItemsData = {
   ],
 };
 
-const OrderModal = ({ menu, onClose }) => {
+const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
   const stylesList = ["simple", "grand", "deluxe"];
 
   const [selectedStyle, setSelectedStyle] = useState("");
@@ -40,23 +39,17 @@ const OrderModal = ({ menu, onClose }) => {
     }, {})
   );
 
-  // 단위 상태
   const [wineUnit, setWineUnit] = useState(
     menu.name === "Champagne Feast" ? "병" : "잔"
   );
   const [champagneUnit, setChampagneUnit] = useState("병");
   const [coffeeUnit, setCoffeeUnit] = useState("잔");
-
-  // 추가 메뉴 드롭다운 상태
   const [showAddons, setShowAddons] = useState(false);
 
-  // 모든 메뉴 아이템
   const allItems = Object.values(menuItemsData).flatMap((items) =>
     items.map((i) => i.name)
   );
   const uniqueItems = [...new Set(allItems)];
-
-  // 현재 메뉴에 없는 아이템
   const availableAddons = uniqueItems.filter(
     (item) => !quantities.hasOwnProperty(item)
   );
@@ -78,11 +71,60 @@ const OrderModal = ({ menu, onClose }) => {
 
   const handleAddItem = (item) => {
     setQuantities((prev) => ({ ...prev, [item]: 1 }));
-    // 단위 초기값
     if (item === "와인") setWineUnit("잔");
     if (item === "샴페인") setChampagneUnit("병");
     if (item === "커피") setCoffeeUnit("잔");
     setShowAddons(false);
+  };
+
+  // 주문/장바구니 공통 처리
+  const handleOrderOrCart = async (action) => {
+    if (!isLoggedIn) {
+      onShowLogin(() => handleOrderOrCart(action));
+      return;
+    }
+
+    const orderData = {
+      menuName: menu.name,
+      style: selectedStyle || "default",
+      items: Object.entries(quantities).map(([name, qty]) => {
+        let unit = "개";
+        if (name === "와인") unit = wineUnit;
+        if (name === "샴페인") unit = champagneUnit;
+        if (name === "커피") unit = coffeeUnit;
+        return { name, qty, unit };
+      }),
+      action, // "order" or "cart"
+    };
+
+    try {
+      const token = localStorage.getItem("token"); // 로그인 토큰
+
+      const res = await fetch("http://localhost:8080/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // 인증 헤더
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "주문 처리 실패");
+        return;
+      }
+
+      alert(
+        `${action === "cart" ? "장바구니 담기" : "주문"} 성공!\n` +
+          JSON.stringify(data, null, 2)
+      );
+      onClose(); // 모달 닫기
+    } catch (err) {
+      console.error(err);
+      alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -91,7 +133,6 @@ const OrderModal = ({ menu, onClose }) => {
         <button className={styles.closeBtn} onClick={onClose}>
           ×
         </button>
-
         <h2 className={styles.title}>{menu.name}</h2>
         <img src={imgSrc} alt={menu.name} className={styles.image} />
 
@@ -113,7 +154,7 @@ const OrderModal = ({ menu, onClose }) => {
           </div>
         </div>
 
-        {/* 수량 및 단위 선택 */}
+        {/* 수량 및 단위 */}
         <div className={styles.quantitySection}>
           {Object.keys(quantities).map((item) => (
             <div key={item} className={styles.quantityRow}>
@@ -193,15 +234,23 @@ const OrderModal = ({ menu, onClose }) => {
             </div>
           ))}
 
-          {/* 맨 아래에 단 하나의 추가 메뉴 버튼 */}
-          <button
-            className={styles.addMenuBtn}
-            onClick={() => setShowAddons((prev) => !prev)}
-          >
-            + 다른 디너의 메뉴 추가
-          </button>
+          {/* 하단 버튼 */}
+          <div className={styles.bottomBtns}>
+            <button
+              className={styles.addMenuBtn}
+              onClick={() => setShowAddons((prev) => !prev)}
+            >
+              + 다른 디너의 메뉴 추가
+            </button>
+            <div className={styles.orderBtns}>
+              <button onClick={() => handleOrderOrCart("cart")}>
+                장바구니 담기
+              </button>
+              <button onClick={() => handleOrderOrCart("order")}>주문</button>
+            </div>
+          </div>
 
-          {/* 드롭다운: 현재 메뉴에 없는 아이템 */}
+          {/* 추가 메뉴 */}
           {showAddons && availableAddons.length > 0 && (
             <div className={styles.addonList}>
               {availableAddons.map((addon) => (

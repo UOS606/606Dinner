@@ -1,9 +1,38 @@
 // src/components/NavBar.jsx
 import React from "react";
 import styles from "./NavBar.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const NavBar = ({ onLoginClick, onSignupClick }) => {
+const NavBar = ({
+  onLoginClick,
+  onSignupClick,
+  isLoggedIn,
+  setIsLoggedIn,
+  onRequireLogin,
+}) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+
+    const protectedPaths = ["/order/cart", "/order/current", "/order/history"];
+    if (protectedPaths.includes(window.location.pathname)) {
+      navigate("/"); // 메인 페이지로 이동
+    }
+  };
+
+  const handleProtectedClick = (path) => {
+    if (!isLoggedIn) {
+      onRequireLogin(() => {
+        // 로그인 후 원래 이동
+        navigate(path);
+      });
+      return;
+    }
+    navigate(path); // 이미 로그인된 경우 바로 이동
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -18,17 +47,22 @@ const NavBar = ({ onLoginClick, onSignupClick }) => {
         <div className={styles.dropdown}>
           <span className={styles.dropdownToggle}>ORDER</span>
           <div className={styles.dropdownMenu}>
-            <Link to="/order/cart">장바구니</Link>
-            <Link to="/order/current">현재 주문 내역</Link>
-            <Link to="/order/history">이전 주문 내역</Link>
+            <button onClick={() => handleProtectedClick("/order/cart")}>
+              장바구니
+            </button>
+            <button onClick={() => handleProtectedClick("/order/history")}>
+              주문 내역
+            </button>
           </div>
         </div>
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.loginBtn} onClick={onLoginClick}>
-          로그인
-        </button>
+        {isLoggedIn ? (
+          <button onClick={handleLogout}>로그아웃</button>
+        ) : (
+          <button onClick={onLoginClick}>로그인</button>
+        )}
         <button className={styles.signupBtn} onClick={onSignupClick}>
           회원가입
         </button>

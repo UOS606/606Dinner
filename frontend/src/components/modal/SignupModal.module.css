@@ -25,12 +25,13 @@
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 90vw;
-  max-width: 560px;
+  width: 500px; /* 원하는 고정 너비 */
+  max-width: 90%; /* 작은 화면에서는 화면에 맞게 축소 */
+  overflow: hidden; /* 내부 넘치는 내용 숨김 */
   background: #fff;
-  border-radius: 14px;
+  border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  padding: 36px 28px;
+  padding: 20px;
   transform: translate(-50%, -50%);
   z-index: 1000;
   overflow-y: auto;
@@ -164,4 +165,21 @@ input[type="tel"]:focus {
   font-size: 24px;
   cursor: pointer;
   color: #999;
+}
+
+.addressGroup {
+  display: flex;
+  flex-direction: column; /* 세로로 4줄 */
+  gap: 12px; /* 줄 사이 간격 */
+  margin-top: 8px;
+}
+
+.addressGroup input {
+  width: 208.5%; /* 모달 안에서 꽉 차도록 */
+  height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
 }

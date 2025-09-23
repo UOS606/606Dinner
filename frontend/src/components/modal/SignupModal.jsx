@@ -7,8 +7,11 @@ const SignupModal = ({ onClose, onShowLogin }) => {
     email: "",
     username: "",
     phone: "",
-    address: "",
-    cardNumber: "", // 추가됨
+    city: "",
+    district: "",
+    neighborhood: "",
+    houseNumber: "",
+    cardNumber: "",
     password: "",
     confirm: "",
     terms: false,
@@ -16,33 +19,69 @@ const SignupModal = ({ onClose, onShowLogin }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+
+    if (name === "cardNumber") {
+      // 숫자만 남기기
+      let digits = value.replace(/\D/g, "");
+      digits = digits.slice(0, 16);
+      // 4자리마다 - 추가
+      const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1-");
+      setForm((prev) => ({ ...prev, [name]: formatted }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (form.password !== form.confirm) {
       alert("비밀번호가 서로 일치하지 않습니다.");
       return;
     }
-
     if (!form.terms) {
       alert("이용약관에 동의해 주세요.");
       return;
     }
-
     if (!/^\d{16}$/.test(form.cardNumber.replaceAll("-", ""))) {
       alert("신용카드 번호를 16자리 숫자로 입력해 주세요.");
       return;
     }
 
-    // TODO: 서버에 폼 데이터 전송
-    alert("회원가입 폼 제출 (서버 연동 필요)");
-    onClose();
+    // 주소 합치기
+    const fullAddress = `${form.city} ${form.district} ${form.neighborhood} ${form.houseNumber}`;
+
+    try {
+      const response = await fetch("http://localhost:8080/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          username: form.username,
+          phone: form.phone,
+          address: fullAddress,
+          cardNumber: form.cardNumber.replaceAll("-", ""),
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        alert(data.message || "회원가입 실패. 다시 시도해 주세요.");
+        return;
+      }
+
+      alert("회원가입 성공! 로그인 해주세요.");
+      onClose();
+      onShowLogin();
+    } catch (error) {
+      console.error(error);
+      alert("네트워크 오류가 발생했습니다. 서버 상태를 확인해 주세요.");
+    }
   };
 
   return (
@@ -133,23 +172,40 @@ const SignupModal = ({ onClose, onShowLogin }) => {
               />
             </div>
 
-            {/* 주소 */}
-            <div className={`${styles.inputGroup} ${styles.full}`}>
-              <label htmlFor="address">
+            {/* 주소 4칸 */}
+            <div className={styles.inputGroup}>
+              <label>
                 주소<span className={styles.req}>*</span>
               </label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                required
-                placeholder="도로명 주소"
-                value={form.address}
-                onChange={handleChange}
-              />
+              <div className={styles.addressGroup}>
+                <input
+                  name="city"
+                  placeholder="시/도"
+                  value={form.city}
+                  onChange={handleChange}
+                />
+                <input
+                  name="district"
+                  placeholder="구/군/구"
+                  value={form.district}
+                  onChange={handleChange}
+                />
+                <input
+                  name="neighborhood"
+                  placeholder="읍/면/동"
+                  value={form.neighborhood}
+                  onChange={handleChange}
+                />
+                <input
+                  name="houseNumber"
+                  placeholder="상세주소"
+                  value={form.houseNumber}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            {/* 신용카드 번호 */}
+            {/* 신용카드 */}
             <div className={`${styles.inputGroup} ${styles.full}`}>
               <label htmlFor="cardNumber">
                 신용카드 번호<span className={styles.req}>*</span>

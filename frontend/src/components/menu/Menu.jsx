@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import OrderModal from "../modal/OrderModal";
+import LoginModal from "../modal/LoginModal"; // 로그인 모달
 import styles from "./Menu.module.css";
 
 const menus = [
@@ -12,8 +13,10 @@ const menus = [
   },
 ];
 
-const Menu = () => {
+const Menu = ({ isLoggedIn, handleLoginSuccess }) => {
   const [selectedMenu, setSelectedMenu] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginCallback, setLoginCallback] = useState(null);
 
   return (
     <main className={styles.container}>
@@ -33,8 +36,34 @@ const Menu = () => {
         ))}
       </div>
 
+      {/* OrderModal에 onShowLogin 전달 */}
       {selectedMenu && (
-        <OrderModal menu={selectedMenu} onClose={() => setSelectedMenu(null)} />
+        <OrderModal
+          menu={selectedMenu}
+          onClose={() => setSelectedMenu(null)}
+          isLoggedIn={isLoggedIn} // 로그인 상태 테스트
+          onShowLogin={(callback) => {
+            setLoginCallback(() => callback); // 4번 케이스: 콜백 저장
+            setShowLogin(true); // 로그인 모달 띄우기
+          }}
+        />
+      )}
+
+      {/* 로그인 모달 */}
+      {showLogin && (
+        <LoginModal
+          onClose={() => {
+            setShowLogin(false);
+            setLoginCallback(null); // 모달 닫을 때 초기화
+          }}
+          onShowSignup={() => {}}
+          onShowFindPassword={() => {}}
+          onLoginSuccess={(callback) => {
+            setShowLogin(false);
+            handleLoginSuccess(loginCallback); // 🔹 App 상태 + callback 실행
+            setLoginCallback(null);
+          }}
+        />
       )}
     </main>
   );
