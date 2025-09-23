@@ -1,0 +1,200 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  font-family: Arial, sans-serif;
+  color: #222;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+}
+
+.title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.image {
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+.styleRow {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.styleBtnWrapper {
+  display: flex;
+  gap: 10px;
+  justify-content: right; /* 버튼만 중앙 정렬 */
+
+  flex: 1; /* 남은 공간 차지 */
+}
+
+.styleBtn {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f7f7f7;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.styleBtn:hover {
+  background: #e0e0e0;
+}
+
+.activeStyle {
+  background: #0066b3;
+  color: #fff;
+  border-color: #0066b3;
+}
+
+.quantitySection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.quantityRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.itemName {
+  font-size: 16px;
+  min-width: 80px;
+}
+
+.qtyControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unitSelect {
+  display: flex;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.unitBtn {
+  padding: 4px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f7f7f7;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.unitBtn:hover {
+  background: #e0e0e0;
+}
+
+.activeUnit {
+  background: #0066b3;
+  color: #fff;
+  border-color: #0066b3;
+}
+
+.qtyWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qtyWrapper button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  background: #f7f7f7;
+  transition: all 0.2s;
+}
+
+.qtyWrapper button:hover {
+  background: #e0e0e0;
+}
+
+.qty {
+  min-width: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.addMenuBtn {
+  font-size: 13px;
+  padding: 4px 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #eee;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s;
+}
+
+.addMenuBtn:hover {
+  background: #ddd;
+}
+
+.addonList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  padding-left: 6px;
+}
+
+.addonList button {
+  font-size: 12px;
+  padding: 3px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #f7f7f7;
+}
+
+.addonList button:hover {
+  background: #e0e0e0;
+}

@@ -1,15 +1,24 @@
 .container {
   padding: 32px 20px;
   text-align: center;
+  min-height: calc(100vh - 80px); /* NavBar 제외, 화면 꽉 채우기 */
+}
+
+/* 제목 영역 */
+.titleWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* 상단으로 정렬 */
+  margin-bottom: 60px; /* 카드와의 간격 */
 }
 
 .title {
   font-size: 32px;
   font-weight: 600;
-  margin-bottom: 40px;
   color: #111;
 }
 
+/* 카드 그리드 */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

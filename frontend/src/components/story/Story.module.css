@@ -1,0 +1,83 @@
+.mainBanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 160px 20px 140px;
+  text-align: center;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.slogan {
+  font-size: 47px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #111;
+  max-width: 1000px;
+  margin: 0 auto;
+  letter-spacing: 0.5px;
+  font-family: "Playfair Display", "Noto Serif KR", serif;
+}
+
+.fadeLine {
+  display: block;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+.mainBanner {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh; /* 100vh 대신 min-height 사용 */
+  padding: 0;
+  background-image: url("../../../public/images/story.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 150px;
+  background-color: rgba(0, 0, 0, 0.5); /* optional: 글씨 잘 보이도록 어둡게 */
+}
+
+.slogan {
+  font-size: 47px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #fff8e7;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  max-width: 1000px;
+  margin: 0 auto;
+  letter-spacing: 0.5px;
+  font-family: "Playfair Display", "Noto Serif KR", serif;
+  text-align: center;
+}
+
+.fadeLine {
+  display: block;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}

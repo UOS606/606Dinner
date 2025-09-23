@@ -1,30 +1,15 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/Home"; // 추가
-import NavBar from "./components/NavBar";
-import LoginModal from "./components/LoginModal";
-import SignupModal from "./components/SignupModal"; // 새로 만드셔야 함
-import styles from "./App.module.css";
-import FindPWModal from "./components/FindPWModal";
+import Home from "./components/home/Home"; // 추가
+import NavBar from "./components/common/nav_bar/NavBar";
+import LoginModal from "./components/modal/LoginModal";
+import SignupModal from "./components/modal/SignupModal"; // 새로 만드셔야 함
+import Story from "./components/story/Story"; // 새로 만든 컴포넌트 불러오기
+import FindPWModal from "./components/modal/FindPWModal";
 import Menu from "./components/menu/Menu"; // 추가
 import Cart from "./components/order/Cart";
 import CurrentOrder from "./components/order/CurrentOrder";
 import OrderHistory from "./components/order/OrderHistory";
-
-function Story() {
-  return (
-    <main className={styles.mainBanner}>
-      <h1 className={styles.slogan}>
-        특별한 날, <br />
-        집에서 편안히 보내며
-        <br />
-        당신이 사랑하는 사람에게
-        <br />
-        감동을 선물하세요.
-      </h1>
-    </main>
-  );
-}
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
