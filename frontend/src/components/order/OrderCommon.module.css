@@ -1,0 +1,12 @@
+/* 공통 레이아웃 */
+.container {
+  padding: 40px;
+  text-align: center;
+}
+
+/* 공통 타이틀 스타일 */
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+}
