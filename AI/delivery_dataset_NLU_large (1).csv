@@ -1,0 +1,673 @@
+﻿text,label
+이 가게 메뉴판 좀 보여줄래?,show_menu
+여기 뭐 파는 곳이야? 메뉴 좀 줘.,show_menu
+파스타 메뉴 뭐뭐 있는지 알려줘.,show_menu
+추천 메뉴는 없어?,show_menu
+전체 메뉴 한번 쭉 보고 싶어.,show_menu
+이 집에서 제일 잘 나가는 메뉴가 뭐야?,show_menu
+메뉴판 다시 띄워줘.,show_menu
+어떤 음식들이 있는지 궁금해.,show_menu
+혹시 세트 메뉴도 있어?,show_menu
+음료 메뉴는 어디서 봐?,show_menu
+뭐 먹을지 보게 메뉴 좀 보여줘,show_menu
+여기 시그니처 메뉴가 뭐야?,show_menu
+메뉴 전체 목록 좀 볼 수 있을까?,show_menu
+오늘의 특선 메뉴는 뭔가요?,show_menu
+가장 인기 있는 메뉴 3가지만 알려줘,show_menu
+사이드 메뉴는 어떤 게 있어?,show_menu
+디저트 메뉴도 보여줘,show_menu
+어린이 메뉴는 따로 있나요?,show_menu
+술안주 할 만한 메뉴 좀 추천해줘.,show_menu
+채식주의자를 위한 메뉴도 있니?,show_menu
+"메뉴판 글씨가 너무 작아, 크게 보여줘.",show_menu
+사진이랑 같이 있는 메뉴판 없어?,show_menu
+가격대별로 메뉴를 볼 수 있을까?,show_menu
+이 가게의 베스트 메뉴는?,show_menu
+신메뉴 나왔는지 궁금해.,show_menu
+메뉴판 업데이트된 거 맞아?,show_menu
+아침 식사 메뉴가 있는지 알려줘.,show_menu
+점심 특선 메뉴 좀 보고 싶어.,show_menu
+가장 기본적인 메뉴가 뭐야?,show_menu
+이 가게는 뭘 전문으로 해?,show_menu
+메뉴에 대한 설명도 같이 볼 수 있을까?,show_menu
+알레르기 정보가 포함된 메뉴판은 없어?,show_menu
+계절 한정 메뉴가 있는지 궁금해.,show_menu
+가장 빨리 나오는 음식이 뭐야?,show_menu
+메뉴판 첫 페이지 보여줘.,show_menu
+다음 페이지 메뉴는 뭐야?,show_menu
+이전 메뉴판으로 돌아가 줘.,show_menu
+대표 메뉴 몇 가지만 추려서 보여줘.,show_menu
+음식 종류별로 메뉴를 나눠서 보여줄래?,show_menu
+매운 음식 메뉴만 따로 볼 수 있어?,show_menu
+안주 메뉴판 좀 보여줘.,show_menu
+음료수 뭐뭐 있어?,show_menu
+커피 종류는 어떤 게 있나요?,show_menu
+샐러드 메뉴만 보고 싶어.,show_menu
+수프 종류는 뭐 있어?,show_menu
+메인 디쉬 메뉴판 보여줘.,show_menu
+오늘 할인하는 메뉴 있어?,show_menu
+이 집만의 특별한 메뉴가 궁금해.,show_menu
+나 지난번에 뭐 시켰었지? 주문 내역 좀 보여줘.,show_order
+최근 주문 기록 좀 찾아줄래?,show_order
+어제 시킨 피자 가게 다시 주문하게 기록 좀.,show_order
+한 달 동안 내가 얼마나 시켰는지 볼 수 있어?,show_order
+3월 15일에 주문했던 내역 좀 알려줘.,show_order
+예전에 먹었던 거 또 시키고 싶어.,show_order
+주문했던 거 목록 좀 줘봐.,show_order
+내가 자주 시키는 메뉴가 뭐였지?,show_order
+작년 이맘때 주문했던 기록 있어?,show_order
+주문 내역에서 가게 이름으로 찾을 수 있어?,show_order
+가장 최근 주문했던 거 뭐야?,show_order
+지난주 금요일에 시킨 거 찾아줘.,show_order
+주문 이력 좀 확인해줘.,show_order
+배달 완료된 주문들 목록 좀 볼 수 있을까?,show_order
+취소했던 주문 내역도 확인 가능해?,show_order
+내가 별점 5점 줬던 가게 주문 기록 좀.,show_order
+가장 많이 시켜 먹은 메뉴가 뭔지 알려줘.,show_order
+주문 내역 날짜순으로 정렬해줘.,show_order
+특정 가게에서 주문했던 것만 모아서 보여줘.,show_order
+친구한테 선물했던 주문 기록을 찾고 싶어.,show_order
+작년 내 생일에 뭐 시켰는지 알려줘.,show_order
+주문했던 메뉴랑 가격 같이 보여줘.,show_order
+"영수증 다시 보고 싶은데, 주문 내역에서 가능해?",show_order
+포장 주문했던 기록만 따로 볼 수 있나?,show_order
+가장 비싸게 주문했던 게 언제야?,show_order
+주문 내역 검색 기능 없어?,show_order
+과거 주문 기록 좀 보자.,show_order
+주문 이력 조회해줘.,show_order
+내가 어떤 메뉴를 주로 시키는지 궁금해.,show_order
+다시 주문하기 편하게 주문 기록 좀 보여줘.,show_order
+혹시 주문했던 메뉴 사진도 다시 볼 수 있나?,show_order
+주문 시간 순서대로 보여줘.,show_order
+가장 오래된 주문 기록은 언제야?,show_order
+이번 달에 식비로 얼마 썼는지 주문 내역으로 확인해줘.,show_order
+주문했던 가게 전화번호를 주문 내역에서 알 수 있나?,show_order
+특정 메뉴를 주문했던 기록을 찾고 싶어.,show_order
+과거 주문 내역 전체 삭제할 수 있어?,show_order
+주문 내역 즐겨찾기 기능은 없어?,show_order
+비슷한 메뉴를 주문했던 기록을 보여줘.,show_order
+주문 내역에서 리뷰 썼는지 확인 가능해?,show_order
+주문했던 음식의 옵션도 다시 볼 수 있니?,show_order
+내 주문 패턴을 분석해줘.,show_order
+월별 주문 내역을 보고 싶어.,show_order
+연간 주문 리포트 같은 건 없어?,show_order
+이전 주문과 동일하게 주문해줘.,show_order
+가장 최근 주문을 장바구니에 담아줘.,show_order
+어제 저녁에 먹었던 거 뭐였지?,show_order
+주문 기록 좀 빨리 찾아줘.,show_order
+장바구니 보여줘.,show_basket
+지금까지 담은 것들 확인 좀 할게.,show_basket
+결제하기 전에 뭐 담았는지 한번 보자.,show_basket
+장바구니에 담은 거 총 얼마야?,show_basket
+내가 담은 메뉴들 맞아?,show_basket
+장바구니에 총 몇 개 들어있지?,show_basket
+주문 전에 장바구니 확인은 필수지.,show_basket
+카트 좀 열어봐.,show_basket
+담아놓은 메뉴 리스트 좀 줘.,show_basket
+장바구니에 뭐 있는지 까먹었어.,show_basket
+장바구니 확인.,show_basket
+담아놓은 거 보여줘.,show_basket
+주문하기 전에 내용물 좀 확인하자.,show_basket
+장바구니에 담긴 거 총액 계산해줘.,show_basket
+삭제할 거 있는지 보게 장바구니 좀.,show_basket
+뭐 담았는지 다시 보여줘.,show_basket
+장바구니에 추가한 메뉴들 리스트.,show_basket
+결제할 금액 미리 좀 보자.,show_basket
+장바구니에 담은 상품 목록 보여줘.,show_basket
+내가 선택한 옵션들이 맞는지 확인해야겠어.,show_basket
+장바구니에 있는 거 하나 뺄래.,show_basket
+수량 좀 조절하게 장바구니 열어줘.,show_basket
+총 주문 금액이 얼마인지 알려줘.,show_basket
+배달비 포함해서 최종 금액이 궁금해.,show_basket
+장바구니 비워줘.,show_basket
+선택한 메뉴들 다시 한번 체크할게.,show_basket
+장바구니에 담은 거 말고 다른 거 추천해줄래?,show_basket
+이 가게에서 담은 것만 보여줘.,show_basket
+혹시 할인 쿠폰 적용된 가격으로 보여줄 수 있어?,show_basket
+포장할지 배달할지 장바구니에서 정할 수 있나?,show_basket
+장바구니 화면으로 이동해줘.,show_basket
+내 카트 좀 보자.,show_basket
+주문할 상품 목록 좀 확인하자.,show_basket
+담은 거 맞는지 체크.,show_basket
+결제 예정 금액 알려줘.,show_basket
+장바구니에 담은 메뉴들의 총 칼로리는 얼마야?,show_basket
+가장 최근에 담은 메뉴가 뭐야?,show_basket
+장바구니를 오래된 순으로 정렬해줘.,show_basket
+가격이 낮은 순으로 장바구니를 보여줘.,show_basket
+가게별로 묶어서 장바구니를 보여줄래?,show_basket
+장바구니에 있는 메뉴 하나를 다른 걸로 바꿀 수 있어?,show_basket
+품절된 상품이 장바구니에 있는지 확인해줘.,show_basket
+예상 배달 시간도 장바구니에서 볼 수 있나?,show_basket
+주문 메모는 장바구니 어디에 남겨?,show_basket
+선물하기로 담은 상품 목록 보여줘.,show_basket
+장바구니에 담은 상품의 리뷰를 바로 볼 수 있어?,show_basket
+이대로 주문해도 괜찮을지 장바구니 한번 보자.,show_basket
+내가 뭘 담았더라?,show_basket
+이대로 주문할게.,do_order
+결제해줘.,do_order
+주문 진행시켜줘.,do_order
+"배달 주소 확인했고, 결제 시작해.",do_order
+포인트 사용해서 주문할래.,do_order
+"다 골랐어, 주문 완료해줘.",do_order
+이걸로 주문 끝.,do_order
+결제하기 버튼 눌러줘.,do_order
+주문 확정할게.,do_order
+"자, 이제 주문하자.",do_order
+주문할게.,do_order
+이대로 결제 진행.,do_order
+주문 넣을게.,do_order
+배송지 맞으니까 주문해줘.,do_order
+쿠폰 써서 주문할래.,do_order
+장바구니에 있는 거 전부 주문.,do_order
+결제 버튼 눌러.,do_order
+주문 확정.,do_order
+이걸로 주문 완료.,do_order
+최종 주문.,do_order
+결제 창으로 넘겨줘.,do_order
+주문서 제출해줘.,do_order
+지금 바로 주문하고 싶어.,do_order
+"더 담을 거 없어, 주문해줘.",do_order
+최종 결제 진행시켜.,do_order
+배달 요청할게.,do_order
+주문 넣는다.,do_order
+이걸로 주문해줘.,do_order
+선물하기로 주문할래.,do_order
+예약 주문 가능한가?,do_order
+픽업으로 주문할게.,do_order
+가장 빠른 배달로 주문해줘.,do_order
+안심번호 사용해서 주문할게.,do_order
+"요청사항 확인했고, 주문 넣어줘.",do_order
+카드 결제로 진행해.,do_order
+휴대폰 소액결제로 주문할래.,do_order
+만나서 결제로 주문하고 싶어.,do_order
+"최종 확인했어, 주문해.",do_order
+"더 이상 변경 없어, 주문.",do_order
+주문 절차 시작해줘.,do_order
+배달 주문 시작.,do_order
+이 내용으로 주문서 넣어줘.,do_order
+주문 접수시켜줘.,do_order
+바로 결제할게.,do_order
+지금 주문하면 언제 와?,do_order
+가장 빠른 시간으로 예약 주문해줘.,do_order
+주문하자.,do_order
+주문 시작.,do_order
+내 주문 어디쯤 오고 있어?,show_delivery
+배달 현황 알려줘.,show_delivery
+기사님 어디 계신지 실시간으로 보여줘.,show_delivery
+도착까지 얼마나 남았어?,show_delivery
+지금 출발은 한 거야?,show_delivery
+예상 도착 시간 다시 계산해줘.,show_delivery
+배달 상황 좀 업데이트해줘.,show_delivery
+음식 언제쯤 받을 수 있을까?,show_delivery
+배달 추적 화면 띄워줘.,show_delivery
+지금 오는 중 맞아?,show_delivery
+배달 어디까지 왔어?,show_delivery
+내 음식 위치 좀.,show_delivery
+기사님 지금 어디쯤이야?,show_delivery
+도착 예정 시간 알려줘.,show_delivery
+배달 시작했어?,show_delivery
+배달 경로 좀 보여줘.,show_delivery
+언제쯤 도착할까?,show_delivery
+배달 추적 좀 해줘.,show_delivery
+음식 지금 오고 있는 거 맞아?,show_delivery
+배송 조회.,show_delivery
+기사님 연락처 알 수 있을까?,show_delivery
+"배달이 너무 늦어지는데, 확인 좀 해줘.",show_delivery
+실시간 위치 공유해줘.,show_delivery
+내 주문 진행 상태가 궁금해.,show_delivery
+가게에서 출발했는지 알려줘.,show_delivery
+배달 예상 시간보다 늦어질 것 같아?,show_delivery
+혹시 다른 곳으로 배달 가고 있는 건 아니겠지?,show_delivery
+배달 기사님한테 메시지 보낼 수 있어?,show_delivery
+지도에서 현재 위치 보여줘.,show_delivery
+배달 완료까지 몇 분 남았어?,show_delivery
+내 주문 픽업됐어?,show_delivery
+배달 현황 새로고침 해줘.,show_delivery
+음식이 지금 어디쯤인지 알려줘.,show_delivery
+도착하면 연락 달라고 기사님께 전해줘.,show_delivery
+"배달 상태가 계속 '배달 중'인데, 상세 정보 없어?",show_delivery
+기사님이 다른 주문이랑 같이 오고 있나?,show_delivery
+"배달 경로가 이상한데, 확인해 줄래?",show_delivery
+도착 10분 전에 알려줄 수 있어?,show_delivery
+배달이 시작되면 알림 보내줘.,show_delivery
+내 음식이 안전하게 오고 있는지 궁금해.,show_delivery
+배달 조회 화면으로 바로 가줘.,show_delivery
+지금 오고 있는 기사님 정보 좀.,show_delivery
+배달이 지연되는 이유가 뭐야?,show_delivery
+도착 예정 시간보다 빨리 올 수도 있어?,show_delivery
+배달 완료 알림은 언제 와?,show_delivery
+문 앞에 두고 가달라고 기사님께 전달됐는지 확인해줘.,show_delivery
+배달 현황 좀 자세히 알려줘.,show_delivery
+내 주문 잘 오고 있는 거지?,show_delivery
+방금 시킨 거 취소해줘.,cancel_order
+주문 취소하고 싶어.,cancel_order
+미안한데 주문을 취소해야 할 것 같아.,cancel_order
+아직 가게에서 접수 안 했으면 취소 가능하지?,cancel_order
+"실수로 잘못 주문했어, 취소 좀.",cancel_order
+주문 취소 버튼 어딨어?,cancel_order
+결제 취소하고 주문 없던 걸로 해줘.,cancel_order
+아직 조리 시작 안했으면 취소할게.,cancel_order
+주문 취소 기간 지났어?,cancel_order
+방금 주문 취소.,cancel_order
+주문 취소할래.,cancel_order
+방금 한 주문 취소.,cancel_order
+주문 취소하고 싶어요.,cancel_order
+가게에서 만들기 전에 취소해줘.,cancel_order
+"잘못 시켰어, 취소.",cancel_order
+주문 취소 되나요?,cancel_order
+결제 취소하고 주문도 취소해줘.,cancel_order
+조리 전이면 취소할게요.,cancel_order
+주문 취소 가능한 시간이야?,cancel_order
+주문 취소 접수해줘.,cancel_order
+방금 결제한 거 취소할 수 있나?,cancel_order
+주문 변경 말고 그냥 취소할게.,cancel_order
+"마음이 바뀌었어, 주문 취소.",cancel_order
+아직 배달 출발 안했지? 그럼 취소할게.,cancel_order
+주문 취소하면 환불은 언제 돼?,cancel_order
+전체 주문 취소해줘.,cancel_order
+이 주문 없었던 걸로 해줘.,cancel_order
+"실수로 주소를 잘못 입력해서, 일단 취소할게.",cancel_order
+"메뉴를 잘못 골랐어, 취소하고 다시 주문할래.",cancel_order
+취소 수수료 있어?,cancel_order
+가게에서 주문 접수하기 전에 빨리 취소해줘.,cancel_order
+주문 취소 절차를 알려줘.,cancel_order
+전화 말고 앱으로 주문 취소 못해?,cancel_order
+지금 바로 취소 가능한 상태야?,cancel_order
+너무 오래 기다려서 그냥 취소할래.,cancel_order
+주문 취소 확인 메시지 보내줘.,cancel_order
+이유 묻지 말고 그냥 취소해줘.,cancel_order
+내 주문 목록에서 이거 삭제하고 싶어.,cancel_order
+주문 취소 사유는 '단순 변심'으로 할게.,cancel_order
+배달이 너무 늦어서 취소.,cancel_order
+가게에서 전화 와서 취소하래.,cancel_order
+재료가 없다고 해서 취소해야 할 것 같아.,cancel_order
+"주문 상태가 '주문 접수'인데, 취소할 수 있지?",cancel_order
+취소하고 다른 가게에서 시킬래.,cancel_order
+주문 취소 완료된 거 맞아?,cancel_order
+"실수로 중복 주문했어, 하나 취소해줘.",cancel_order
+"아, 그냥 취소할게요.",cancel_order
+이 주문 취소 좀 부탁드려요.,cancel_order
+고객센터 연결해줘.,call_customer_service
+상담원이랑 이야기하고 싶어.,call_customer_service
+이건 사람하고 직접 얘기해야겠어.,call_customer_service
+"음식이 완전 다른 게 왔는데, 고객센터에 문의할래.",call_customer_service
+"앱 오류가 계속되는데, 신고 좀 하게 연결해줘.",call_customer_service
+상담원 연결까지 얼마나 걸려?,call_customer_service
+"궁금한 게 있는데, 고객센터에 물어볼래.",call_customer_service
+고객센터 전화번호 알려줘.,call_customer_service
+"문제가 생겼어, 고객 지원팀 좀 연결해줘.",call_customer_service
+"이건 기계가 해결 못 해, 상담원 바꿔줘.",call_customer_service
+고객센터 연결.,call_customer_service
+상담원과 통화하고 싶어.,call_customer_service
+사람이랑 얘기해야겠어.,call_customer_service
+문제 생겼는데 고객센터 좀.,call_customer_service
+"앱이 이상해, 고객센터 연결해줘.",call_customer_service
+"상담원 연결해줘, 급해.",call_customer_service
+고객센터에 문의할게 있어.,call_customer_service
+고객센터 번호 뭐야?,call_customer_service
+고객 지원팀 연결.,call_customer_service
+상담원 통화 요청.,call_customer_service
+채팅 상담 말고 전화 상담하고 싶어.,call_customer_service
+가장 빠른 상담원 연결 부탁해.,call_customer_service
+"결제 오류 관련해서 문의할게, 고객센터 연결.",call_customer_service
+"배달 사고가 났어, 고객센터 좀.",call_customer_service
+"가게랑 연락이 안돼, 고객센터에서 해결해줘.",call_customer_service
+"내 개인정보가 유출된 것 같아, 고객센터 연결.",call_customer_service
+환불 정책에 대해 자세히 물어보고 싶어.,call_customer_service
+이물질 신고는 고객센터로 하는 거 맞아?,call_customer_service
+상담원 대기 시간이 너무 길어.,call_customer_service
+이메일 문의 말고 직접 통화하고 싶어.,call_customer_service
+전문 상담원이랑 얘기할 수 있을까?,call_customer_service
+"해외에서 이용 중인데, 고객센터 연결 방법 알려줘.",call_customer_service
+이용약관에 대해 물어볼 게 있어.,call_customer_service
+탈퇴 관련해서 문의하려고.,call_customer_service
+"내 리뷰가 삭제됐는데, 고객센터에 항의할래.",call_customer_service
+"포인트가 제대로 적립 안됐어, 고객센터 연결.",call_customer_service
+"시스템 오류인 것 같은데, 담당자 연결해줘.",call_customer_service
+"긴급한 문제야, 빨리 연결해줘.",call_customer_service
+"불만 접수하고 싶어, 고객센터.",call_customer_service
+"칭찬하고 싶은 기사님이 있는데, 고객센터에 말하면 되나?",call_customer_service
+이벤트 관련해서 궁금한 게 있어.,call_customer_service
+파트너십 제휴 문의는 어디로 해?,call_customer_service
+고객센터 운영 시간 알려줘.,call_customer_service
+외국어 상담 가능한 상담원 있어?,call_customer_service
+"문제가 해결이 안돼, 다른 상담원 바꿔줘.",call_customer_service
+내 문의 내역 좀 다시 보고 싶어.,call_customer_service
+상담 내용 녹음해도 돼?,call_customer_service
+최고 책임자랑 통화하고 싶다니까.,call_customer_service
+발렌타인 디너로 선택할게요.,select_valentine_dinner
+분위기 있게 하트 장식 있는 디너로 주세요.,select_valentine_dinner
+큐피드 장식된 그 스테이크 세트로 할래.,select_valentine_dinner
+와인이랑 스테이크 나오는 발렌타인 디너 하나요.,select_valentine_dinner
+기념일이라서 그러는데 발렌타인 디너로 주문할게요.,select_valentine_dinner
+저녁은 발렌타인 디너로 하자.,select_valentine_dinner
+"이걸로 주세요, 발렌타인 디너.",select_valentine_dinner
+작은 하트 모양 장식이 있는 메뉴 선택.,select_valentine_dinner
+발렌타인 디너 하나 장바구니에 담아.,select_valentine_dinner
+냅킨이랑 같이 예쁘게 오는 디너로 결정했어.,select_valentine_dinner
+발렌타인 디너 주문.,select_valentine_dinner
+특별한 날이니까 발렌타인 저녁 식사로.,select_valentine_dinner
+하트 모양 나오는 걸로.,select_valentine_dinner
+큐피드 장식 있는 거 하나.,select_valentine_dinner
+발렌타인 세트 하나 추가해줘.,select_valentine_dinner
+로맨틱한 저녁 식사로 저거 주세요.,select_valentine_dinner
+발렌타인 디너가 좋겠어.,select_valentine_dinner
+선택은 발렌타인 디너.,select_valentine_dinner
+"이거 하나 주문할게요, 발렌타인 디너.",select_valentine_dinner
+발렌타인 디너 세트 하나요.,select_valentine_dinner
+하트랑 큐피드 있는 걸로 주세요.,select_valentine_dinner
+스테이크랑 와인 나오는 세트 선택.,select_valentine_dinner
+기념일 메뉴로 저거 할래.,select_valentine_dinner
+발렌타인 디너로 예약할게요.,select_valentine_dinner
+오늘 저녁은 발렌타인 디너.,select_valentine_dinner
+"이걸로 할게, 발렌타인.",select_valentine_dinner
+하트 장식 있는 메뉴로.,select_valentine_dinner
+큐피드 스테이크 세트 주문.,select_valentine_dinner
+와인 포함된 발렌타인 디너.,select_valentine_dinner
+기념일 디너로 주세요.,select_valentine_dinner
+발렌타인 디너로 정했어.,select_valentine_dinner
+선택은 발렌타인 디너.,select_valentine_dinner
+"저 메뉴로 할게요, 하트 있는 거.",select_valentine_dinner
+큐피드 장식 디너 하나 추가.,select_valentine_dinner
+발렌타인 디너 세트 하나 더.,select_valentine_dinner
+로맨틱 디너로 주문할게요.,select_valentine_dinner
+발렌타인 디너로 결정.,select_valentine_dinner
+"이걸로 주문, 발렌타인 디너.",select_valentine_dinner
+하트 장식 스테이크 주세요.,select_valentine_dinner
+큐피드 디너 세트 하나.,select_valentine_dinner
+와인 나오는 발렌타인 디너로.,select_valentine_dinner
+기념일 저녁 식사로 딱이네.,select_valentine_dinner
+발렌타인 디너 예약.,select_valentine_dinner
+오늘 저녁은 이걸로.,select_valentine_dinner
+발렌타인 스페셜 메뉴로 주세요.,select_valentine_dinner
+하트 모양 플레이팅 디너.,select_valentine_dinner
+큐피드 장식 세트 하나.,select_valentine_dinner
+프렌치 디너로 할게요.,select_valentine_dinner
+커피랑 와인 다 나오는 프렌치 디너로 주문해줘.,select_french_dinner
+샐러드랑 스테이크 포함된 디너 선택.,select_french_dinner
+프렌치 디너 하나 추가.,select_french_dinner
+심플하게 프렌치 디너 어때?,select_french_dinner
+저녁은 프렌치 디너로.,select_french_dinner
+"이걸로 할게, 프렌치 디너.",select_french_dinner
+프랑스식 저녁 식사로 주문.,select_french_dinner
+와인 한 잔 포함된 저녁 메뉴로 주세요.,select_french_dinner
+프렌치 디너로 정했어.,select_french_dinner
+프렌치 디너 주문.,select_french_dinner
+프랑스식 코스 요리로 주세요.,select_french_dinner
+커피랑 와인 나오는 세트로.,select_french_dinner
+"샐러드, 스테이크 있는 디너.",select_french_dinner
+프렌치 디너 하나 더 담아줘.,select_french_dinner
+저녁은 간단하게 프렌치 디너.,select_french_dinner
+프렌치 디너로 결정.,select_french_dinner
+프랑스 스타일 저녁 식사.,select_french_dinner
+와인 포함된 디너 메뉴.,select_french_dinner
+프렌치 디너로 선택.,select_french_dinner
+프렌치 디너 세트 하나 주세요.,select_french_dinner
+"커피, 와인, 샐러드, 스테이크 다 나오는 걸로.",select_french_dinner
+프랑스식 디너로 할래.,select_french_dinner
+프렌치 디너 하나 더.,select_french_dinner
+간단한 프렌치 디너.,select_french_dinner
+오늘 저녁은 프렌치.,select_french_dinner
+"이걸로 선택, 프렌치 디너.",select_french_dinner
+프랑스 저녁 식사 주문.,select_french_dinner
+와인 나오는 프렌치 디너.,select_french_dinner
+프렌치 디너로 할게요.,select_french_dinner
+프렌치 디너 하나 장바구니에.,select_french_dinner
+프랑스 코스 요리 주세요.,select_french_dinner
+커피랑 와인 둘 다 있는 디너.,select_french_dinner
+"샐러드, 스테이크 세트.",select_french_dinner
+프렌치 디너 추가 주문.,select_french_dinner
+저녁은 프렌치 스타일로.,select_french_dinner
+프렌치 디너로 최종 선택.,select_french_dinner
+프랑스식 디너 하나.,select_french_dinner
+와인 한 잔 나오는 메뉴.,select_french_dinner
+프렌치 디너로.,select_french_dinner
+프렌치 디너 세트 주문.,select_french_dinner
+모든 구성 포함된 프렌치 디너.,select_french_dinner
+프랑스식으로 할래.,select_french_dinner
+프렌치 디너 하나 더 추가.,select_french_dinner
+간단한 저녁으로 프렌치 디너.,select_french_dinner
+오늘 저녁은 프렌치 디너가 좋겠어.,select_french_dinner
+선택은 프렌치 디너.,select_french_dinner
+프랑스식으로 주문할게요.,select_french_dinner
+와인 포함된 프렌치 디너.,select_french_dinner
+프렌치 디너로 주문 확정.,select_english_dinner
+잉글리시 디너로 주세요.,select_english_dinner
+아침 식사 같은 그 디너로 할래.,select_english_dinner
+에그 스크램블이랑 베이컨 있는 잉글리시 디너 선택.,select_english_dinner
+빵이랑 스테이크 나오는 잉글리시 디너 하나 담아줘.,select_english_dinner
+든든하게 잉글리시 디너 먹자.,select_english_dinner
+잉글리시 디너로 주문.,select_english_dinner
+영국식 저녁 식사로 주세요.,select_english_dinner
+베이컨이랑 빵 나오는 세트로 할게요.,select_english_dinner
+나는 잉글리시 디너가 좋겠어.,select_english_dinner
+"이걸로 할래, 잉글리시 디너.",select_english_dinner
+잉글리시 디너 주문.,select_english_dinner
+영국식 아침 식사 스타일로.,select_english_dinner
+"에그 스크램블, 베이컨, 빵, 스테이크 다 있는 걸로.",select_english_dinner
+잉글리시 디너 하나 추가.,select_english_dinner
+든든한 잉글리시 디너.,select_english_dinner
+저녁은 잉글리시 디너.,select_english_dinner
+"이걸로 선택, 잉글리시 디너.",select_english_dinner
+영국식으로 주문할게요.,select_english_dinner
+"베이컨, 빵 나오는 디너.",select_english_dinner
+잉글리시 디너로 결정.,select_english_dinner
+잉글리시 디너 세트 하나 주세요.,select_english_dinner
+아침 메뉴 같은 저녁 식사.,select_english_dinner
+에그 스크램블이랑 베이컨 있는 거.,select_english_dinner
+빵이랑 스테이크 같이 나오는 디너.,select_english_dinner
+잉글리시 디너로 할래.,select_english_dinner
+영국식 디너 주문.,select_english_dinner
+베이컨이랑 스크램블 에그 있는 메뉴.,select_english_dinner
+잉글리시 디너로.,select_english_dinner
+잉글리시 디너로 선택할게요.,select_english_dinner
+아침 같은 저녁 식사.,select_english_dinner
+에그 스크램블 디너.,select_english_dinner
+"빵, 스테이크 세트.",select_english_dinner
+든든한 영국식 디너.,select_english_dinner
+잉글리시 디너로 주문 확정.,select_english_dinner
+영국 스타일로 주세요.,select_english_dinner
+"베이컨, 빵, 계란 나오는 걸로.",select_english_dinner
+잉글리시 디너로 할게요.,select_english_dinner
+"이걸로 주세요, 잉글리시 디너.",select_english_dinner
+잉글리시 디너 하나 추가.,select_english_dinner
+영국식 아침 식사 스타일 디너.,select_english_dinner
+"에그 스크램블, 베이컨, 빵, 스테이크 다 주세요.",select_english_dinner
+든든하게 잉글리시 디너.,select_english_dinner
+저녁은 영국식으로.,select_english_dinner
+잉글리시 디너로 선택.,select_english_dinner
+영국식으로 주문.,select_english_dinner
+베이컨이랑 빵 있는 디너.,select_english_dinner
+잉글리시 디너로 결정했어요.,select_english_dinner
+특별한 날이니까 샴페인 축제 디너로 하자.,select_champagne_feast_dinner
+샴페인 2병 나오는 그 디너로 주문할게요.,select_champagne_feast_dinner
+4인 식사로 샴페인 피스트 디너 선택해줘.,select_champagne_feast_dinner
+바게트빵이랑 커피포트까지 오는 풀코스로.,select_champagne_feast_dinner
+제일 화려한 샴페인 축제 디너로 할래.,select_champagne_feast_dinner
+샴페인 축제 디너 하나 추가해줘.,select_champagne_feast_dinner
+샴페인 피스트 디너 주문.,select_champagne_feast_dinner
+가족들이랑 먹게 샴페인 축제 디너로.,select_champagne_feast_dinner
+양이 제일 많은 디너로 주세요.,select_champagne_feast_dinner
+친구들이랑 파티하게 샴페인 축제 디너로.,select_champagne_feast_dinner
+샴페인 축제 디너 주문.,select_champagne_feast_dinner
+제일 푸짐한 걸로.,select_champagne_feast_dinner
+"샴페인 2병, 바게트, 커피, 와인, 스테이크 다 있는 걸로.",select_champagne_feast_dinner
+4인용 샴페인 축제 디너.,select_champagne_feast_dinner
+풀코스 디너로 주세요.,select_champagne_feast_dinner
+가장 화려한 디너.,select_champagne_feast_dinner
+샴페인 피스트 디너 하나 추가.,select_champagne_feast_dinner
+가족 식사로 샴페인 축제 디너.,select_champagne_feast_dinner
+양이 많은 디너.,select_champagne_feast_dinner
+파티용으로 샴페인 축제 디너.,select_champagne_feast_dinner
+샴페인 축제 디너로 할게요.,select_champagne_feast_dinner
+제일 비싼 디너로 주세요.,select_champagne_feast_dinner
+샴페인 2병 나오는 세트.,select_champagne_feast_dinner
+4인분 샴페인 피스트.,select_champagne_feast_dinner
+풀코스로 나오는 디너.,select_champagne_feast_dinner
+가장 화려한 메뉴로.,select_champagne_feast_dinner
+샴페인 피스트 디너 하나 더.,select_champagne_feast_dinner
+가족들이랑 먹을 거라 샴페인 축제 디너.,select_champagne_feast_dinner
+양이 제일 많은 걸로.,select_champagne_feast_dinner
+파티용 디너로.,select_champagne_feast_dinner
+샴페인 축제 디너로 선택.,select_champagne_feast_dinner
+제일 푸짐한 디너로.,select_champagne_feast_dinner
+"샴페인, 바게트, 커피, 와인, 스테이크 다 나오는 거.",select_champagne_feast_dinner
+4인분짜리 샴페인 축제 디너.,select_champagne_feast_dinner
+풀코스 저녁 식사.,select_champagne_feast_dinner
+가장 화려한 걸로 주세요.,select_champagne_feast_dinner
+샴페인 피스트 디너 하나 더 추가.,select_champagne_feast_dinner
+가족 식사용으로 샴페인 축제 디너.,select_champagne_feast_dinner
+양이 제일 많은 메뉴로.,select_champagne_feast_dinner
+파티 음식으로 샴페인 축제 디너.,select_champagne_feast_dinner
+샴페인 축제 디너로 결정.,select_champagne_feast_dinner
+제일 비싼 걸로.,select_champagne_feast_dinner
+샴페인 2병 세트.,select_champagne_feast_dinner
+4인용 샴페인 디너.,select_champagne_feast_dinner
+풀코스로.,select_champagne_feast_dinner
+가장 화려한 디너로 선택.,select_champagne_feast_dinner
+샴페인 피스트 디너 추가.,select_champagne_feast_dinner
+가족들과 함께 샴페인 축제 디너.,select_champagne_feast_dinner
+서빙은 그냥 심플 스타일로 해주세요.,select_style_simple
+"플라스틱 접시로 괜찮아요, 심플로.",select_style_simple
+종이 냅킨 나오는 기본 스타일로 할게.,select_style_simple
+제일 저렴한 심플 스타일로 선택.,select_style_simple
+스타일은 심플.,select_style_simple
+플라스틱 쟁반에 간단하게 주세요.,select_style_simple
+"와인잔은 플라스틱으로 괜찮아, 심플 스타일.",select_style_simple
+서빙 스타일은 기본으로.,select_style_simple
+따로 추가 안 하고 심플로 할게요.,select_style_simple
+가장 기본적인 세팅으로.,select_style_simple
+심플 스타일로.,select_style_simple
+플라스틱 식기로.,select_style_simple
+종이 냅킨으로 주세요.,select_style_simple
+가장 싼 스타일로.,select_style_simple
+스타일 선택은 심플.,select_style_simple
+플라스틱 쟁반으로.,select_style_simple
+와인잔은 플라스틱.,select_style_simple
+기본 서빙 스타일.,select_style_simple
+추가 없이 심플.,select_style_simple
+기본 세팅.,select_style_simple
+심플 스타일로 부탁드려요.,select_style_simple
+플라스틱 접시와 컵으로.,select_style_simple
+기본 종이 냅킨.,select_style_simple
+제일 저렴한 걸로.,select_style_simple
+스타일은 심플하게.,select_style_simple
+플라스틱 쟁반에.,select_style_simple
+와인잔은 플라스틱 컵으로.,select_style_simple
+기본으로 주세요.,select_style_simple
+"추가 안 할게요, 심플.",select_style_simple
+가장 기본.,select_style_simple
+심플 옵션으로.,select_style_simple
+플라스틱으로 다 주세요.,select_style_simple
+종이 냅킨 세팅.,select_style_simple
+가장 저렴한 옵션.,select_style_simple
+심플로 할게요.,select_style_simple
+플라스틱 쟁반에 담아주세요.,select_style_simple
+와인잔은 플라스틱으로.,select_style_simple
+서빙은 기본 스타일.,select_style_simple
+심플로 그냥 주세요.,select_style_simple
+기본 세팅으로 부탁드려요.,select_style_simple
+심플하게.,select_style_simple
+플라스틱 식기 세트.,select_style_simple
+냅킨은 종이로.,select_style_simple
+제일 싼 옵션.,select_style_simple
+스타일은 심플.,select_style_simple
+쟁반은 플라스틱.,select_style_simple
+플라스틱 와인잔.,select_style_simple
+기본 서빙.,select_style_simple
+그랜드 스타일로 업그레이드해주세요.,select_style_grand
+나무 쟁반에 나오는 그랜드 스타일로 할게요.,select_style_grand
+"도자기 접시로 부탁드려요, 그랜드로.",select_style_grand
+냅킨은 흰색 면으로 나오는 스타일로.,select_style_grand
+스타일은 그랜드로 선택.,select_style_grand
+중간 등급 스타일로 주문할게.,select_style_grand
+와인잔은 플라스틱이지만 접시는 도자기로.,select_style_grand
+그랜드 스타일로 차려줘.,select_style_grand
+나무 쟁반 세팅으로 할게요.,select_style_grand
+그랜드 옵션 추가.,select_style_grand
+그랜드 스타일로.,select_style_grand
+나무 쟁반으로.,select_style_grand
+도자기 식기로.,select_style_grand
+흰색 면 냅킨.,select_style_grand
+중간 스타일로.,select_style_grand
+접시는 도자기.,select_style_grand
+그랜드 세팅으로.,select_style_grand
+그랜드 옵션.,select_style_grand
+그랜드 스타일로 부탁드려요.,select_style_grand
+나무 쟁반에 주세요.,select_style_grand
+도자기 접시와 컵으로.,select_style_grand
+면 냅킨으로.,select_style_grand
+중간 등급으로.,select_style_grand
+"접시는 도자기로, 컵은 플라스틱.",select_style_grand
+그랜드 스타일로 차려주세요.,select_style_grand
+나무 쟁반 세팅.,select_style_grand
+그랜드로 할게요.,select_style_grand
+나무 쟁반 옵션.,select_style_grand
+도자기 식기 세트.,select_style_grand
+흰색 면 냅킨으로.,select_style_grand
+중간 스타일.,select_style_grand
+접시만 도자기로.,select_style_grand
+그랜드 세팅.,select_style_grand
+그랜드 추가.,select_style_grand
+그랜드 스타일로 업그레이드.,select_style_grand
+나무 쟁반에 담아주세요.,select_style_grand
+도자기 식기로 부탁드려요.,select_style_grand
+흰색 면 냅킨으로 주세요.,select_style_grand
+중간 등급 스타일.,select_style_grand
+"접시는 도자기로, 와인잔은 플라스틱.",select_style_grand
+그랜드 스타일로 세팅해주세요.,select_style_grand
+나무 쟁반으로 부탁드려요.,select_style_grand
+그랜드로.,select_style_grand
+나무 쟁반 옵션 추가.,select_style_grand
+도자기 식기로.,select_style_grand
+면 냅킨으로.,select_style_grand
+중간 스타일로 할게요.,select_style_grand
+접시만 도자기로 업그레이드.,select_style_grand
+디럭스 스타일로 가장 좋게 주문할게요.,select_style_deluxe
+꽃병도 같이 오는 디럭스로.,select_style_deluxe
+와인잔은 유리잔으로 나오는 디럭스 스타일로 해주세요.,select_style_deluxe
+린넨 냅킨으로 품격있게.,select_style_deluxe
+최고급 스타일인 디럭스로 선택.,select_style_deluxe
+이왕 먹는 거 제일 비싼 스타일로.,select_style_deluxe
+작은 꽃병 장식 추가되는 걸로.,select_style_deluxe
+디럭스 스타일로 부탁드려요.,select_style_deluxe
+유리잔에 와인 마시게 디럭스로.,select_style_deluxe
+가장 좋은 옵션으로.,select_style_deluxe
+디럭스 스타일로.,select_style_deluxe
+꽃병 장식.,select_style_deluxe
+유리잔 와인잔.,select_style_deluxe
+린넨 냅킨.,select_style_deluxe
+최고급 스타일.,select_style_deluxe
+제일 비싼 옵션.,select_style_deluxe
+꽃병 추가.,select_style_deluxe
+디럭스로.,select_style_deluxe
+유리 와인잔.,select_style_deluxe
+가장 좋은 걸로.,select_style_deluxe
+디럭스 스타일로 주문.,select_style_deluxe
+꽃병 있는 걸로.,select_style_deluxe
+와인잔은 유리로.,select_style_deluxe
+린넨 냅킨으로.,select_style_deluxe
+최고급으로.,select_style_deluxe
+제일 비싼 걸로 할게요.,select_style_deluxe
+꽃 장식 추가.,select_style_deluxe
+디럭스 옵션.,select_style_deluxe
+유리잔으로 주세요.,select_style_deluxe
+가장 좋은 세팅.,select_style_deluxe
+디럭스로 업그레이드.,select_style_deluxe
+꽃병 장식 포함.,select_style_deluxe
+와인잔은 유리잔으로 부탁드려요.,select_style_deluxe
+냅킨은 린넨으로.,select_style_deluxe
+최고급 옵션으로.,select_style_deluxe
+가장 비싼 스타일.,select_style_deluxe
+꽃병도 같이 주세요.,select_style_deluxe
+디럭스 세팅으로.,select_style_deluxe
+유리잔 와인.,select_style_deluxe
+가장 좋은 스타일로.,select_style_deluxe
+디럭스로 주문할게요.,select_style_deluxe
+꽃병 포함된 걸로.,select_style_deluxe
+와인잔 유리로.,select_style_deluxe
+린넨 냅킨으로 주세요.,select_style_deluxe
+최고급 스타일로.,select_style_deluxe
+제일 비싼 옵션으로.,select_style_deluxe
+꽃 장식 추가해주세요.,select_style_deluxe
+디럭스로.,select_style_deluxe
