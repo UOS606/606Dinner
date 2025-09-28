@@ -24,7 +24,7 @@ except Exception as e:
 
 # Java에서 보낼 요청 데이터의 형식을 정의합니다.
 class TextRequest(BaseModel):
-    text: str  # 문장은 'text'라는 키에 담겨 올 것으로 약속합니다.
+    user_text: str  # 문장은 'text'라는 키에 담겨 올 것으로 약속합니다.
 
 # Java로 돌려줄 응답 데이터의 형식을 정의합니다.
 class PredictionResponse(BaseModel):
@@ -46,7 +46,7 @@ def predict_intent(request: TextRequest):
         return {"label": "error", "score": 0.0, "message": "모델이 로드되지 않았습니다."}
 
     # 1. Java에서 보낸 데이터 추출
-    input_text = request.text
+    input_text = request.user_text
     print(f"📩 Java로부터 문장 수신: {input_text}")
 
     # 2. AI 모델로 예측 수행
