@@ -57,11 +57,6 @@ def predict_intent(request: TextRequest):
     print(f"🔍 예측 결과: {prediction['label']} (신뢰도: {prediction['score']:.2f})")
     return PredictionResponse(label=prediction['label'], score=prediction['score'])
 
-# (선택) 서버가 잘 실행되고 있는지 확인하는 기본 경로
-@app.get("/")
-def read_root():
-    return {"status": "AI Inference Server is running"}
-
 
 # -----------------------------------------------------------
 # 4. 서버 실행
