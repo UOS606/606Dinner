@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Home from "./components/home/Home"; // 추가
 import NavBar from "./components/common/nav_bar/NavBar";
 import LoginModal from "./components/modal/LoginModal";

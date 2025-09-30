@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Home.module.css";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  if (localStorage.getItem("username") === "admin") {
+    navigate("/admin");
+  }
   const [bannerIndex, setBannerIndex] = useState(0);
   const [menuIndex, setMenuIndex] = useState(0);
 
