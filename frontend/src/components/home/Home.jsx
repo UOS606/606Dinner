@@ -5,15 +5,18 @@ const Home = () => {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [menuIndex, setMenuIndex] = useState(0);
 
-  const bannerImages = ["/images/homepage1.png", "/images/homepage2.png"];
+  const bannerImages = [
+    "/images/homepage1_fixed.png",
+    "/images/homepage2_fixed.png",
+  ];
   const menuSets = [
     [
-      { src: "/images/dinner/valentine/default.png" },
-      { src: "/images/dinner/french/default.png" },
+      { src: "/images/dinner/valentine/default_fixed.png" },
+      { src: "/images/dinner/french/default_fixed.png" },
     ],
     [
-      { src: "/images/dinner/english/default.png" },
-      { src: "/images/dinner/champagne_feast/default.png" },
+      { src: "/images/dinner/english/default_fixed.png" },
+      { src: "/images/dinner/champagne_feast/default_fixed.png" },
     ],
   ];
 

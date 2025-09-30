@@ -5,16 +5,33 @@ import styles from "./FindPWModal.module.css";
 const FindPWModal = ({ onClose }) => {
   const [email, setEmail] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!email) {
       alert("이메일을 입력해 주세요.");
       return;
     }
 
-    // TODO: 서버에 이메일 전송
-    alert(`비밀번호 재설정 링크가 ${email}로 전송되었습니다.`);
-    onClose();
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "오류가 발생했습니다.");
+      }
+
+      alert(`입력하신 이메일로 비밀번호가 전송되었습니다.`);
+      onClose();
+    } catch (err) {
+      alert(err.message || "문제가 발생했습니다.");
+    }
   };
 
   return (

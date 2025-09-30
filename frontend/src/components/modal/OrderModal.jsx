@@ -100,7 +100,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
     try {
       const token = localStorage.getItem("token"); // 로그인 토큰
 
-      const res = await fetch("http://localhost:8080/api/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -123,6 +123,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
       onClose(); // 모달 닫기
     } catch (err) {
       console.error(err);
+      // console.log(orderData.items);
       alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
     }
   };
