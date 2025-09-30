@@ -35,24 +35,22 @@ function App() {
     setUsername(savedUsername);
   }, []);
 
-  const handleLoginSuccess = (username) => {
+  const handleLoginSuccess = (name) => {
     setIsLoggedIn(true);
-    setUsername(username);
-    localStorage.setItem("username", username);
     setShowLogin(false);
+    setUsername(localStorage.getItem("username"));
+    if (name === "admin") navigate("/admin");
 
-    if (username === "admin") navigate("/admin");
-    else navigate("/");
-
-    if (typeof loginCallback === "function") {
+    if (typeof loginCallback === "function" && name !== "admin") {
       loginCallback();
     }
+
     setLoginCallback(null);
   };
 
   const openLogin = (callback = () => {}) => {
-    setLoginCallback(() => callback);
     setShowLogin(true);
+    setLoginCallback(() => callback);
     setShowSignup(false);
   };
 
