@@ -1,0 +1,83 @@
+/* 기본 폰트 */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
+
+/* 로그인 박스 전체 화면 가운데 정렬 */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* 로그인 박스 */
+.login-box {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  width: 350px;
+  text-align: center;
+}
+
+/* 로고 */
+.logo img {
+  height: 80px;
+}
+
+/* 입력 필드 */
+.input-group {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* 로그인 버튼 */
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #0066B3; /* 시그니처 블루 */
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background: #004f87;
+}
+
+/* 하단 링크 */
+.extra-links {
+  margin-top: 18px;
+  font-size: 13px;
+}
+
+.extra-links a {
+  color: #E41E26; /* 시그니처 레드 */
+  text-decoration: none;
+}
+
+.extra-links a:hover {
+  text-decoration: underline;
+}

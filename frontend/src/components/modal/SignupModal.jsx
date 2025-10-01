@@ -20,7 +20,22 @@ const SignupModal = ({ onClose, onShowLogin }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "cardNumber") {
+    if (name === "phone") {
+      let digits = value.replace(/\D/g, "").slice(0, 11); // 숫자만 추출, 최대 11자리
+      let formatted = "";
+
+      if (digits.length < 4) {
+        formatted = digits;
+      } else if (digits.length < 8) {
+        formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      } else {
+        formatted = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(
+          7
+        )}`;
+      }
+
+      setForm((prev) => ({ ...prev, [name]: formatted }));
+    } else if (name === "cardNumber") {
       // 숫자만 남기기
       let digits = value.replace(/\D/g, "");
       digits = digits.slice(0, 16);
@@ -62,7 +77,7 @@ const SignupModal = ({ onClose, onShowLogin }) => {
           name: form.name,
           email: form.email,
           username: form.username,
-          phone: form.phone,
+          phone: form.phone.replaceAll("-", ""),
           address: fullAddress,
           cardNumber: form.cardNumber.replaceAll("-", ""),
           password: form.password,
@@ -164,6 +179,8 @@ const SignupModal = ({ onClose, onShowLogin }) => {
               <input
                 id="phone"
                 name="phone"
+                inputMode="numeric"
+                pattern="\d"
                 type="tel"
                 required
                 placeholder="010-1234-5678"

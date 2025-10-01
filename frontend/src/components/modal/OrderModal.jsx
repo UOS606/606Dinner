@@ -27,7 +27,14 @@ const menuItemsData = {
   ],
 };
 
-const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
+const OrderModal = ({
+  menu,
+  onClose,
+  isLoggedIn,
+  onShowLogin,
+  hidden,
+  setHidden,
+}) => {
   const stylesList = ["simple", "grand", "deluxe"];
 
   const [selectedStyle, setSelectedStyle] = useState("");
@@ -80,6 +87,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
   // 주문/장바구니 공통 처리
   const handleOrderOrCart = async (action) => {
     if (!isLoggedIn) {
+      setHidden(true);
       onShowLogin(() => handleOrderOrCart(action));
       return;
     }

@@ -6,6 +6,7 @@ const LoginModal = ({
   onShowSignup,
   onShowFindPassword,
   onLoginSuccess,
+  hidden,
 }) => {
   const [form, setForm] = useState({ username: "", password: "" });
 
@@ -107,23 +108,25 @@ const LoginModal = ({
           </button>
         </form>
 
-        <div className={styles.extraLinks}>
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={onShowSignup}
-          >
-            회원가입
-          </button>{" "}
-          |{" "}
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={onShowFindPassword}
-          >
-            비밀번호 찾기
-          </button>
-        </div>
+        {!hidden && (
+          <div className={styles.extraLinks}>
+            <button
+              type="button"
+              className={styles.linkButton}
+              onClick={onShowSignup}
+            >
+              회원가입
+            </button>{" "}
+            |{" "}
+            <button
+              type="button"
+              className={styles.linkButton}
+              onClick={onShowFindPassword}
+            >
+              비밀번호 찾기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

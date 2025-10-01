@@ -19,6 +19,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [username, setUsername] = useState(null);
   const [loginCallback, setLoginCallback] = useState(null);
+  const [hidden, setHidden] = useState(false);
 
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ function App() {
     if (typeof loginCallback === "function" && name !== "admin") {
       loginCallback();
     }
-
+    setHidden(false);
     setLoginCallback(null);
   };
 
@@ -65,6 +66,7 @@ function App() {
     setShowSignup(false);
     setShowFindPassword(false);
     setLoginCallback(null);
+    setHidden(false);
   };
 
   const handleLogout = () => {
@@ -166,6 +168,7 @@ function App() {
           }}
           onShowFindPassword={openFindPassword}
           onLoginSuccess={handleLoginSuccess}
+          hidden={hidden}
         />
       )}
 

@@ -17,6 +17,7 @@ const Menu = ({ isLoggedIn, handleLoginSuccess }) => {
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [loginCallback, setLoginCallback] = useState(null);
+  const [hidden, setHidden] = useState(null);
 
   return (
     <main className={styles.container}>
@@ -46,6 +47,8 @@ const Menu = ({ isLoggedIn, handleLoginSuccess }) => {
             setLoginCallback(() => callback); // 4번 케이스: 콜백 저장
             setShowLogin(true); // 로그인 모달 띄우기
           }}
+          hidden={hidden}
+          setHidden={setHidden}
         />
       )}
 
@@ -63,6 +66,7 @@ const Menu = ({ isLoggedIn, handleLoginSuccess }) => {
             handleLoginSuccess(loginCallback); // 🔹 App 상태 + callback 실행
             setLoginCallback(null);
           }}
+          hidden={hidden}
         />
       )}
     </main>
