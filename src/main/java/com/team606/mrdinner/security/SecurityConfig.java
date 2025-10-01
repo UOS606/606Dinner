@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .cors(cors -> {}) // React 개발 서버 허용하려면 WebMvcConfigurer로 CORS 설정
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/customers").permitAll() // 회원가입
+                        .requestMatchers(HttpMethod.POST, "/api/signup").permitAll() // 회원가입
                         .requestMatchers("/api/auth/login").permitAll() // 로그인
                         .anyRequest().authenticated()
                 );
