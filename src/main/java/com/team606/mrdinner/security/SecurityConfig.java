@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/signup").permitAll() // 회원가입
-                        .requestMatchers("/api/auth/login").permitAll() // 로그인
+                        .requestMatchers(HttpMethod.POST,"/api/login").permitAll() // 로그인
                         .anyRequest().authenticated()
                 );
 

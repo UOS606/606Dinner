@@ -13,14 +13,17 @@ public class JwtUtil {
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long EXPIRATION = 1000 * 60 * 60; // 1시간
 
+    // 토큰 생성
     public String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setSubject(username) // 사용자명
+                .setIssuedAt(new Date()) // 발급 시간
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION)) // 만료 시간
                 .signWith(key)
                 .compact();
     }
 
+    // 토큰 검증 및 사용자명 추출
     public String validateAndGetUsername(String token) {
         try {
             return Jwts.parserBuilder()
@@ -30,7 +33,7 @@ public class JwtUtil {
                     .getBody()
                     .getSubject();
         } catch (JwtException e) {
-            return null;
+            return null; // 유효하지 않은 토큰
         }
     }
 }
