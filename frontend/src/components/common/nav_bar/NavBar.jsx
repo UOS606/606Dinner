@@ -82,12 +82,6 @@ const NavBar = ({
             <button onClick={handleLogout} className={styles.loginBtn}>
               로그아웃
             </button>
-            {/* 로그인된 사용자 중 admin이 아닌 경우만 회원가입 버튼 */}
-            {username !== "admin" && (
-              <button className={styles.signupBtn} onClick={onSignupClick}>
-                회원가입
-              </button>
-            )}
           </>
         ) : (
           <>

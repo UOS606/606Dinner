@@ -5,7 +5,7 @@ import NavBar from "./components/common/nav_bar/NavBar";
 import LoginModal from "./components/modal/LoginModal";
 import SignupModal from "./components/modal/SignupModal"; // 새로 만드셔야 함
 import Story from "./components/story/Story"; // 새로 만든 컴포넌트 불러오기
-import FindPWModal from "./components/modal/FindPWModal";
+
 import Menu from "./components/menu/Menu"; // 추가
 import Cart from "./components/order/Cart";
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -15,7 +15,7 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const [showFindPassword, setShowFindPassword] = useState(false);
+
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [username, setUsername] = useState(null);
   const [loginCallback, setLoginCallback] = useState(null);
@@ -55,16 +55,10 @@ function App() {
     setShowLogin(false);
   };
 
-  const openFindPassword = () => {
-    setShowLogin(false);
-    setShowSignup(false);
-    setShowFindPassword(true);
-  };
-
   const closeModals = () => {
     setShowLogin(false);
     setShowSignup(false);
-    setShowFindPassword(false);
+
     setLoginCallback(null);
     setHidden(false);
   };
@@ -166,7 +160,6 @@ function App() {
             setShowLogin(false);
             setShowSignup(true);
           }}
-          onShowFindPassword={openFindPassword}
           onLoginSuccess={handleLoginSuccess}
           hidden={hidden}
         />
@@ -181,7 +174,6 @@ function App() {
           }}
         />
       )}
-      {showFindPassword && <FindPWModal onClose={closeModals} />}
     </>
   );
 }
