@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./OrderModal.module.css";
+import { calculateTotalPrice } from "../common/Price";
 
 const menuItemsData = {
   Valentine: [
@@ -27,7 +28,14 @@ const menuItemsData = {
   ],
 };
 
-const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
+const OrderModal = ({
+  menu,
+  onClose,
+  isLoggedIn,
+  onShowLogin,
+  hidden,
+  setHidden,
+}) => {
   const stylesList = ["simple", "grand", "deluxe"];
 
   const [selectedStyle, setSelectedStyle] = useState("");
@@ -77,54 +85,90 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
     setShowAddons(false);
   };
 
-  // 주문/장바구니 공통 처리
-  const handleOrderOrCart = async (action) => {
+  const units = { wineUnit, champagneUnit, coffeeUnit };
+
+  const handleOrder = async (action) => {
+    if (isLoggedIn && !selectedStyle) {
+      alert("서빙 스타일을 선택해주세요!");
+      return;
+    }
+
     if (!isLoggedIn) {
-      onShowLogin(() => handleOrderOrCart(action));
+      setHidden(true);
+      onShowLogin(() => handleOrder(action));
       return;
     }
 
     const orderData = {
+      id: localStorage.getItem("username"),
+      cartedTime: new Date().toISOString(), // 장바구니 담은 시간
+      receivedTime: null, // 주문 접수 시간(주문 완료 시간, 조리 시작 시간)
+      cookedTime: null, // 조리 완료 시간(배달 시작 시간)
+      deliveredTime: null, // 배달 완료 시간
       menuName: menu.name,
       style: selectedStyle || "default",
       items: Object.entries(quantities).map(([name, qty]) => {
         let unit = "개";
+        if (name === "에그 스크램블" || name === "베이컨") unit = "인분";
+        if (name === "스테이크" || name === "샐러드") unit = "접시";
         if (name === "와인") unit = wineUnit;
         if (name === "샴페인") unit = champagneUnit;
         if (name === "커피") unit = coffeeUnit;
         return { name, qty, unit };
       }),
-      action, // "order" or "cart"
+      action, // order
     };
 
-    try {
-      const token = localStorage.getItem("token"); // 로그인 토큰
+    // Test Code Start
 
-      const res = await fetch("http://localhost:8080/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 인증 헤더
-        },
-        body: JSON.stringify(orderData),
-      });
+    const existingOrders = JSON.parse(
+      localStorage.getItem("test_orders") || "[]"
+    );
+    existingOrders.push(orderData);
+    localStorage.setItem("test_orders", JSON.stringify(existingOrders));
+    alert(
+      `${action === "carted" ? "장바구니 담기" : "주문"} 테스트 저장 완료!\n` +
+        `현재 총 ${existingOrders.length}개의 주문이 저장됨`
+    );
+    console.log("LocalStorage 저장 완료:", existingOrders);
+    onClose();
+    return;
 
-      const data = await res.json();
+    // Test Code End
 
-      if (!res.ok) {
-        alert(data.message || "주문 처리 실패");
-        return;
+    // Post Code Start
+    /*
+      try {
+        const token = localStorage.getItem("token"); // 로그인 토큰
+  
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // 인증 헤더
+          },
+          body: JSON.stringify(orderData),
+        });
+  
+        const data = await res.json();
+  
+        if (!res.ok) {
+          alert(data.message || "주문 처리 실패");
+          return;
+        }
+  
+        alert(
+          `${action === "carted" ? "장바구니 담기" : "주문"} 성공!\n` +
+            JSON.stringify(data, null, 2)
+        );
+        onClose(); // 모달 닫기
+      } catch (err) {
+        console.error(err);
+        // console.log(orderData.items);
+        alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
       }
-
-      alert(
-        `${action === "cart" ? "장바구니 담기" : "주문"} 성공!\n` +
-          JSON.stringify(data, null, 2)
-      );
-      onClose(); // 모달 닫기
-    } catch (err) {
-      console.error(err);
-      alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
-    }
+    */
+    // Post Code End
   };
 
   return (
@@ -240,15 +284,27 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin }) => {
               className={styles.addMenuBtn}
               onClick={() => setShowAddons((prev) => !prev)}
             >
-              + 다른 디너의 메뉴 추가
+              {showAddons
+                ? "- 다른 디너의 메뉴 추가"
+                : "+ 다른 디너의 메뉴 추가"}
             </button>
             <div className={styles.orderBtns}>
-              <button onClick={() => handleOrderOrCart("cart")}>
+              <button onClick={() => handleOrder("carted")}>
                 장바구니 담기
               </button>
-              <button onClick={() => handleOrderOrCart("order")}>주문</button>
             </div>
           </div>
+
+          {/* 총 가격 */}
+          <p className={styles.totalPrice}>
+            가격:{" "}
+            {calculateTotalPrice(
+              quantities,
+              selectedStyle,
+              units
+            ).toLocaleString()}
+            원
+          </p>
 
           {/* 추가 메뉴 */}
           {showAddons && availableAddons.length > 0 && (

@@ -17,9 +17,9 @@ const Story = () => {
             <span
               key={index}
               className={styles.fadeLine}
-              style={{ animationDelay: `${index * 1.5}s` }} // 1.5초 간격
+              style={{ animationDelay: `${index * 1.2}s` }} // 1.5초 간격
             >
-              {line} <br />
+              {line}
             </span>
           ))}
         </h1>

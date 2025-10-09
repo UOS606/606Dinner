@@ -4,8 +4,9 @@ import styles from "./LoginModal.module.css";
 const LoginModal = ({
   onClose,
   onShowSignup,
-  onShowFindPassword,
+
   onLoginSuccess,
+  hidden,
 }) => {
   const [form, setForm] = useState({ username: "", password: "" });
 
@@ -17,48 +18,57 @@ const LoginModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    /**
-      const testUser = { username: "1234", password: "1234" };
-  
-      if (
-        form.username === testUser.username &&
-        form.password === testUser.password
-      ) {
-        // 성공 시 token 대신 간단히 아이디 저장
-        localStorage.setItem("token", "dummy-token-1234");
-  
-        alert("로그인 성공!");
-        if (onLoginSuccess) onLoginSuccess(); // 부모 콜백 호출
-        onClose();
-      } else {
-        alert("로그인 실패! 아이디: 1234 / 비밀번호: 1234 를 입력하세요.");
-      }
-    */
+    // Test Code Start
+    const testUser = { username: "1234", password: "1234" };
+    const adminUser = { username: "admin", password: "12345678" };
 
-    try {
-      const res = await fetch("http://localhost:8080/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "로그인 실패");
-        return;
-      }
-
-      // JWT 토큰 저장
-      localStorage.setItem("token", data.token);
+    if (
+      (form.username === testUser.username &&
+        form.password === testUser.password) ||
+      (form.username === adminUser.username &&
+        form.password === adminUser.password)
+    ) {
+      // 성공 시 token 대신 간단히 아이디 저장
+      localStorage.setItem("token", "dummy-token");
+      localStorage.setItem("username", form.username);
 
       alert("로그인 성공!");
-      if (onLoginSuccess) onLoginSuccess(); // 로그인 상태 반영
+      if (onLoginSuccess) onLoginSuccess(form.username); // 부모 콜백 호출
       onClose();
-    } catch (err) {
-      console.error(err);
-      alert("서버 오류 발생");
+    } else {
+      alert("로그인 실패!");
     }
+    // Test Code End
+
+    // Post Code Start
+    /**
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+  
+        const data = await res.json();
+  
+        if (!res.ok) {
+          alert(data.message || "로그인 실패");
+          return;
+        }
+  
+        // JWT 토큰 저장
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
+  
+        alert("로그인 성공!");
+        if (onLoginSuccess) onLoginSuccess(data.username); // 로그인 상태 반영
+        onClose();
+      } catch (err) {
+        console.error(err);
+        alert("서버 오류 발생");
+      }
+    */
+    // Post Code End
   };
 
   return (
@@ -102,23 +112,17 @@ const LoginModal = ({
           </button>
         </form>
 
-        <div className={styles.extraLinks}>
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={onShowSignup}
-          >
-            회원가입
-          </button>{" "}
-          |{" "}
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={onShowFindPassword}
-          >
-            비밀번호 찾기
-          </button>
-        </div>
+        {!hidden && (
+          <div className={styles.extraLinks}>
+            <button
+              type="button"
+              className={styles.linkButton}
+              onClick={onShowSignup}
+            >
+              회원가입
+            </button>{" "}
+          </div>
+        )}
       </div>
     </div>
   );

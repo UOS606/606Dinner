@@ -1,13 +1,249 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import common from "./OrderCommon.module.css";
-import styles from "./Cart.module.css"; // Cart 전용 스타일 (없으면 생략 가능)
+import styles from "./Cart.module.css";
+import { calculateTotalPrice } from "../common/Price";
 
 const Cart = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  // ---------------- 장바구니 데이터 로드 ----------------
+  const loadCart = async () => {
+    setLoading(true);
+    setError("");
+
+    // -------------- Test Code Start --------------
+    const savedOrders = JSON.parse(localStorage.getItem("test_orders") || "[]");
+    const cartOnly = savedOrders.filter((order) => order.action === "carted");
+    setCartItems(cartOnly);
+    setLoading(false);
+    // -------------- Test Code End --------------
+
+    // -------------- Post Code Start --------------
+    /*
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/orders", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "장바구니 로드 실패");
+        setLoading(false);
+        return;
+      }
+      // action이 cart인 항목만 필터링
+      const cartOnly = data.filter((order) => order.action === "carted");
+      setCartItems(cartOnly);
+      setLoading(false);
+    } catch (err) {
+      console.error("서버 오류:", err);
+      setError("서버 오류 발생");
+      setLoading(false);
+    }
+    */
+    // -------------- Post Code End --------------
+  };
+
+  // ---------------- 삭제 함수 ----------------
+  const handleDelete = async (userId, cartedTime) => {
+    // -------------- Test Code Start --------------
+    const savedOrders = JSON.parse(localStorage.getItem("test_orders") || "[]");
+    const newOrders = savedOrders.filter(
+      (o) => !(o.id === userId && o.cartedTime === cartedTime)
+    );
+    localStorage.setItem("test_orders", JSON.stringify(newOrders));
+    setCartItems((prev) =>
+      prev.filter((o) => !(o.id === userId && o.cartedTime === cartedTime))
+    );
+    // -------------- Test Code End --------------
+
+    // -------------- Post Code Start --------------
+
+    /*
+      try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/orders`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: userId, cartedTime, action: "carted" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "삭제 실패");
+        return;
+      }
+      setCartItems((prev) =>
+        prev.filter((o) => !(o.id === userId && o.cartedTime === cartedTime))
+      );
+    } catch (err) {
+      console.error("서버 삭제 오류:", err);
+      alert("서버 삭제 오류 발생");
+    }
+    */
+
+    // -------------- Post Code End --------------
+  };
+
+  // 주문하기 버튼
+  const submitOrder = async () => {
+    // ---------------- Test 코드 ----------------
+    const savedOrders = JSON.parse(localStorage.getItem("test_orders") || "[]");
+    const updatedOrders = savedOrders.map((o) =>
+      o.action === "carted" ? { ...o, action: "ordered" } : o
+    );
+    localStorage.setItem("test_orders", JSON.stringify(updatedOrders));
+    setCartItems(updatedOrders.filter((o) => o.action === "carted"));
+
+    alert(
+      `주문 완료! ${
+        updatedOrders.filter((o) => o.action === "ordered").length
+      }개 메뉴가 결제됨`
+    );
+
+    // ---------------- Post 코드 ----------------
+    /*
+            try {
+              const token = localStorage.getItem("token");
+              const res = await fetch("/api/orders", {
+                method: "PUT", // 또는 PATCH
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  actionUpdate: {
+                    from: "carted",
+                    to: "ordered",
+                  },
+                }),
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                alert(data.message || "주문 처리 실패");
+                return;
+              }
+              alert("주문 완료!");
+              loadCart(); // 다시 장바구니 로드
+            } catch (err) {
+              console.error(err);
+              alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
+            }
+            */
+  };
+
+  // ---------------- Cart 총합 계산 ----------------
+  const totalCartPrice = cartItems.reduce((sum, order) => {
+    const units = {
+      wineUnit: order.items.find((i) => i.name === "와인")?.unit || "잔",
+      champagneUnit: order.items.find((i) => i.name === "샴페인")?.unit || "병",
+      coffeeUnit: order.items.find((i) => i.name === "커피")?.unit || "잔",
+    };
+    const orderPrice = calculateTotalPrice(
+      order.items.reduce((acc, i) => {
+        acc[i.name] = i.qty;
+        return acc;
+      }, {}),
+      order.style,
+      units
+    );
+    return sum + orderPrice;
+  }, 0);
+
+  if (loading) return <p className={styles.loading}>로딩 중...</p>;
+  if (error) return <p className={styles.error}>오류: {error}</p>;
+
   return (
     <main className={`${common.container} ${styles.container || ""}`}>
-      <h2 className={`${common.title} ${styles.title || ""}`}>
-        장바구니 페이지 (준비중)
-      </h2>
+      <h2 className={`${common.title} ${styles.title || ""}`}>장바구니</h2>
+
+      {cartItems.length === 0 ? (
+        <p className={styles.empty}>장바구니가 비어 있습니다.</p>
+      ) : (
+        <>
+          <div className={styles.cartList}>
+            {cartItems.map((order) => {
+              const units = {
+                wineUnit:
+                  order.items.find((i) => i.name === "와인")?.unit || "잔",
+                champagneUnit:
+                  order.items.find((i) => i.name === "샴페인")?.unit || "병",
+                coffeeUnit:
+                  order.items.find((i) => i.name === "커피")?.unit || "잔",
+              };
+              return (
+                <div key={order.id} className={styles.cartItem}>
+                  <h3>
+                    <span className={styles.styleLabel}>
+                      {order.style.charAt(0).toUpperCase() +
+                        order.style.slice(1)}
+                    </span>{" "}
+                    {order.menuName}
+                  </h3>
+
+                  <img
+                    className={styles.cartImage}
+                    src={`/images/dinner/${order.menuName
+                      .toLowerCase()
+                      .replace(/\s/g, "_")}/${(
+                      order.style || "default"
+                    ).toLowerCase()}.png`}
+                    alt={order.menuName}
+                  />
+
+                  <ul>
+                    {order.items.map((item, i) => (
+                      <li key={i}>
+                        {item.name} - {item.qty}
+                        {item.unit}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className={styles.totalPrice}>
+                    가격:{" "}
+                    {calculateTotalPrice(
+                      order.items.reduce((acc, i) => {
+                        acc[i.name] = i.qty;
+                        return acc;
+                      }, {}),
+                      order.style,
+                      units
+                    ).toLocaleString()}
+                    원
+                  </p>
+
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(order.id, order.cartedTime)}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className={styles.orderBottom}>
+            <span className={styles.totalCartPrice}>
+              총 가격: {totalCartPrice.toLocaleString()}원
+            </span>
+            <button className={styles.placeOrderBtn} onClick={submitOrder}>
+              주문하기
+            </button>
+          </div>
+        </>
+      )}
     </main>
   );
 };
