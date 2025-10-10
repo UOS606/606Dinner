@@ -23,13 +23,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // API + JWT 환경에서는 CSRF 비활성화
+                // API + JWT라면 CSRF 비활성화
                 .csrf(csrf -> csrf.disable())
-                // WebMvcConfigurer(CorsConfig) 설정 사용
+                // WebMvcConfigurer(CorsConfig)의 설정을 사용
                 .cors(cors -> {})
-                // 세션 사용 안함 (JWT stateless)
+                // 세션 사용 안함
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 401/403 응답을 JSON으로 처리 (프론트 파싱 에러 방지)
+                // 401/403도 항상 JSON으로 내려주기 (프론트 JSON 파싱 에러 방지)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) -> {
                             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -42,36 +42,24 @@ public class SecurityConfig {
                             res.getWriter().write("{\"success\":false,\"message\":\"접근 거부\"}");
                         })
                 )
-                // 요청 경로별 인가 정책
                 .authorizeHttpRequests(auth -> auth
-                        // Preflight 허용 (CORS 403 방지)
+                        // 프리플라이트 허용 (CORS 403 방지)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // 로그인, 회원가입, 비밀번호 재설정 API 공개 허용
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/login",
-                                "/api/signup",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password"
-                        ).permitAll()
-
-                        // 필요시 추가 공개 API
-                        // .requestMatchers("/api/public/**").permitAll()
-
+                        // 공개 엔드포인트
+                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup").permitAll()
+                        // 필요시 공개 API 더 추가: .requestMatchers("/api/public/**").permitAll()
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 );
 
-        // JWT 필터는 UsernamePasswordAuthenticationFilter 이전에 추가
+        // JWT 필터는 UsernamePasswordAuthenticationFilter 전에
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
