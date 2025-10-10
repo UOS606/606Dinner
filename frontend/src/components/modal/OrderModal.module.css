@@ -35,6 +35,10 @@
   color: #999;
 }
 
+.closeBtn:hover {
+  color: #ff7875;
+}
+
 .title {
   text-align: center;
   font-size: 24px;
