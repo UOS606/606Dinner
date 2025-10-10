@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./OrderModal.module.css";
-import { calculateTotalPrice } from "../common/Price";
+import { calculateTotalPrice } from "../common/PriceInfo";
+import { isForTest } from "../../App";
 
 const menuItemsData = {
   Valentine: [
@@ -102,7 +103,7 @@ const OrderModal = ({
     const orderData = {
       id: localStorage.getItem("username"),
       cartedTime: new Date().toISOString(), // 장바구니 담은 시간
-      receivedTime: null, // 주문 접수 시간(주문 완료 시간, 조리 시작 시간)
+      orderedTime: null, // 주문 접수 시간(주문 완료 시간, 조리 시작 시간)
       cookedTime: null, // 조리 완료 시간(배달 시작 시간)
       deliveredTime: null, // 배달 완료 시간
       menuName: menu.name,
@@ -116,31 +117,35 @@ const OrderModal = ({
         if (name === "커피") unit = coffeeUnit;
         return { name, qty, unit };
       }),
-      action, // order
+      action, // carted
+      address: null, // 백에서 채워야 할 듯
     };
 
-    // Test Code Start
+    if (isForTest) {
+      // Test Code Start
 
-    const existingOrders = JSON.parse(
-      localStorage.getItem("test_orders") || "[]"
-    );
-    existingOrders.push(orderData);
-    localStorage.setItem("test_orders", JSON.stringify(existingOrders));
-    alert(
-      `${action === "carted" ? "장바구니 담기" : "주문"} 테스트 저장 완료!\n` +
-        `현재 총 ${existingOrders.length}개의 주문이 저장됨`
-    );
-    console.log("LocalStorage 저장 완료:", existingOrders);
-    onClose();
-    return;
+      const existingOrders = JSON.parse(
+        localStorage.getItem("test_orders") || "[]"
+      );
+      existingOrders.push(orderData);
+      localStorage.setItem("test_orders", JSON.stringify(existingOrders));
+      alert(
+        `${
+          action === "carted" ? "장바구니 담기" : "주문"
+        } 테스트 저장 완료!\n` +
+          `현재 총 ${existingOrders.length}개의 주문이 저장됨`
+      );
+      console.log("LocalStorage 저장 완료:", existingOrders);
+      onClose();
+      return;
 
-    // Test Code End
+      // Test Code End
+    } else {
+      // Post Code Start
 
-    // Post Code Start
-    /*
       try {
         const token = localStorage.getItem("token"); // 로그인 토큰
-  
+
         const res = await fetch("/api/orders", {
           method: "POST",
           headers: {
@@ -149,14 +154,14 @@ const OrderModal = ({
           },
           body: JSON.stringify(orderData),
         });
-  
+
         const data = await res.json();
-  
+
         if (!res.ok) {
           alert(data.message || "주문 처리 실패");
           return;
         }
-  
+
         alert(
           `${action === "carted" ? "장바구니 담기" : "주문"} 성공!\n` +
             JSON.stringify(data, null, 2)
@@ -167,8 +172,9 @@ const OrderModal = ({
         // console.log(orderData.items);
         alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
       }
-    */
-    // Post Code End
+
+      // Post Code End
+    }
   };
 
   return (
