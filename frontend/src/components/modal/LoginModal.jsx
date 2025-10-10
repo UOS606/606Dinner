@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./LoginModal.module.css";
+import { isForTest } from "../../App";
 
 const LoginModal = ({
   onClose,
@@ -18,48 +19,47 @@ const LoginModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Test Code Start
-    const testUser = { username: "1234", password: "1234" };
-    const adminUser = { username: "admin", password: "12345678" };
+    if (isForTest) {
+      // Test Code Start
+      const users = JSON.parse(localStorage.getItem("test_users") || "[]");
 
-    if (
-      (form.username === testUser.username &&
-        form.password === testUser.password) ||
-      (form.username === adminUser.username &&
-        form.password === adminUser.password)
-    ) {
-      // 성공 시 token 대신 간단히 아이디 저장
-      localStorage.setItem("token", "dummy-token");
-      localStorage.setItem("username", form.username);
+      const matchedUser = users.find(
+        (u) => u.username === form.username && u.password === form.password
+      );
 
-      alert("로그인 성공!");
-      if (onLoginSuccess) onLoginSuccess(form.username); // 부모 콜백 호출
-      onClose();
+      if (matchedUser) {
+        // 성공 시 token 대신 간단히 아이디 저장
+        localStorage.setItem("token", "dummy-token");
+        localStorage.setItem("username", matchedUser.username);
+
+        alert("로그인 성공!");
+        if (onLoginSuccess) onLoginSuccess(matchedUser.username); // 부모 콜백 호출
+        onClose();
+      } else {
+        alert("로그인 실패!");
+      }
+      // Test Code End
     } else {
-      alert("로그인 실패!");
-    }
-    // Test Code End
+      // Post Code Start
 
-    // Post Code Start
-    /**
       try {
         const res = await fetch("/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         });
-  
+
         const data = await res.json();
-  
+
         if (!res.ok) {
           alert(data.message || "로그인 실패");
           return;
         }
-  
+
         // JWT 토큰 저장
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", data.username);
-  
+
         alert("로그인 성공!");
         if (onLoginSuccess) onLoginSuccess(data.username); // 로그인 상태 반영
         onClose();
@@ -67,8 +67,9 @@ const LoginModal = ({
         console.error(err);
         alert("서버 오류 발생");
       }
-    */
-    // Post Code End
+
+      // Post Code End
+    }
   };
 
   return (

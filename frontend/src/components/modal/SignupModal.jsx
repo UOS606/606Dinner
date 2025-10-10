@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./SignupModal.module.css";
+import { isForTest } from "../../App";
 
 const SignupModal = ({ onClose, onShowLogin }) => {
   const [form, setForm] = useState({
@@ -16,6 +17,8 @@ const SignupModal = ({ onClose, onShowLogin }) => {
     confirm: "",
     terms: false,
   });
+  const [usernameChecked, setUsernameChecked] = useState(false);
+  const [usernameExists, setUsernameExists] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -48,6 +51,65 @@ const SignupModal = ({ onClose, onShowLogin }) => {
         [name]: type === "checkbox" ? checked : value,
       }));
     }
+    if (name === "username") {
+      setUsernameChecked(false);
+      setUsernameExists(false);
+    }
+  };
+
+  const handleCheckUsername = async () => {
+    if (!form.username) {
+      alert("아이디를 입력해 주세요.");
+      return;
+    }
+
+    if (form.id === "admin") {
+      alert("다른 아이디를 입력하세요.");
+      return;
+    }
+
+    if (isForTest) {
+      const users = JSON.parse(localStorage.getItem("test_users") || "[]");
+
+      // 중복 아이디 검사
+      if (users.some((u) => u.username === form.username)) {
+        alert("이미 존재하는 아이디입니다.");
+        setUsernameExists(true);
+        setUsernameChecked(true);
+        return;
+      } else {
+        alert("사용 가능한 아이디입니다.");
+        setUsernameExists(false);
+        setUsernameChecked(true);
+        return;
+      }
+    } else {
+      try {
+        const res = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: form.username, checkOnly: true }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          if (data.exists) {
+            alert("이미 사용 중인 아이디입니다.");
+            setUsernameExists(true);
+          } else {
+            alert("사용 가능한 아이디입니다.");
+            setUsernameExists(false);
+          }
+          setUsernameChecked(true);
+        } else {
+          alert(data.message || "중복검사 실패");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("네트워크 오류가 발생했습니다.");
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,36 +128,83 @@ const SignupModal = ({ onClose, onShowLogin }) => {
       return;
     }
 
+    if (!usernameChecked) {
+      alert("아이디 중복검사를 해주세요.");
+      return;
+    }
+    if (usernameExists) {
+      alert("이미 사용 중인 아이디입니다.");
+      return;
+    }
+
     // 주소 합치기
     const fullAddress = `${form.city} ${form.district} ${form.neighborhood} ${form.houseNumber}`;
 
-    try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          username: form.username,
-          phone: form.phone.replaceAll("-", ""),
-          address: fullAddress,
-          cardNumber: form.cardNumber.replaceAll("-", ""),
-          password: form.password,
-        }),
-      });
+    if (isForTest) {
+      const users = JSON.parse(localStorage.getItem("test_users") || "[]");
 
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        alert(data.message || "회원가입 실패. 다시 시도해 주세요.");
-        return;
-      }
+      // 주소 합치기
+      const newUser = {
+        name: form.name,
+        email: form.email,
+        username: form.username,
+        phone: form.phone.replaceAll("-", ""),
+        address: fullAddress,
+        cardNumber: form.cardNumber.replaceAll("-", ""),
+        password: form.password, // 실제 환경에선 암호화 필요!
+      };
 
-      alert("회원가입 성공! 로그인 해주세요.");
+      users.push(newUser);
+      localStorage.setItem("test_users", JSON.stringify(users));
+
+      alert("회원가입 완료! 로그인 해주세요.");
       onClose();
       onShowLogin();
-    } catch (error) {
-      console.error(error);
-      alert("네트워크 오류가 발생했습니다. 서버 상태를 확인해 주세요.");
+      return;
+    } else {
+      try {
+        const checkRes = await fetch(
+          `/api/user/check-username/${form.username}`
+        );
+        if (checkRes.ok) {
+          const { exists } = await checkRes.json();
+          if (exists) {
+            alert("이미 사용 중인 아이디입니다.");
+            return;
+          }
+        } else {
+          console.error("중복검사 실패:", checkRes.status);
+          alert("아이디 중복검사 중 오류가 발생했습니다.");
+          return;
+        }
+
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            username: form.username,
+            phone: form.phone.replaceAll("-", ""),
+            address: fullAddress,
+            cardNumber: form.cardNumber.replaceAll("-", ""),
+            password: form.password,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          alert(data.message || "회원가입 실패. 다시 시도해 주세요.");
+          return;
+        }
+
+        alert("회원가입 성공! 로그인 해주세요.");
+        onClose();
+        onShowLogin();
+      } catch (error) {
+        console.error(error);
+        alert("네트워크 오류가 발생했습니다. 서버 상태를 확인해 주세요.");
+      }
     }
   };
 
@@ -157,18 +266,34 @@ const SignupModal = ({ onClose, onShowLogin }) => {
               <label htmlFor="username">
                 아이디<span className={styles.req}>*</span>
               </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                minLength={4}
-                maxLength={20}
-                pattern="[A-Za-z0-9]+"
-                placeholder="영문/숫자 4~20자"
-                value={form.username}
-                onChange={handleChange}
-              />
+              <div className={styles.usernameWrapper}>
+                {" "}
+                {/* 🔹 CSS 클래스 추가 */}
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  minLength={4}
+                  maxLength={20}
+                  pattern="[A-Za-z0-9]+"
+                  placeholder="영문/숫자 4~20자"
+                  value={form.username}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  onClick={handleCheckUsername}
+                  className={styles.checkBtn}
+                >
+                  중복확인
+                </button>
+                {usernameChecked && usernameExists && (
+                  <small className={styles.errorMsg}>
+                    이미 사용 중인 아이디입니다.
+                  </small>
+                )}
+              </div>
             </div>
 
             {/* 연락처 */}

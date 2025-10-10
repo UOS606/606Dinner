@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import common from "./OrderCommon.module.css";
 import styles from "./Cart.module.css";
-import { calculateTotalPrice } from "../common/Price";
+import { calculateTotalPrice } from "../common/PriceInfo";
+import { isForTest } from "../../App";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -17,129 +18,166 @@ const Cart = () => {
     setLoading(true);
     setError("");
 
-    // -------------- Test Code Start --------------
-    const savedOrders = JSON.parse(localStorage.getItem("test_orders") || "[]");
-    const cartOnly = savedOrders.filter((order) => order.action === "carted");
-    setCartItems(cartOnly);
-    setLoading(false);
-    // -------------- Test Code End --------------
-
-    // -------------- Post Code Start --------------
-    /*
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/api/orders", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || "장바구니 로드 실패");
-        setLoading(false);
-        return;
-      }
-      // action이 cart인 항목만 필터링
-      const cartOnly = data.filter((order) => order.action === "carted");
+    if (isForTest) {
+      // -------------- Test Code Start --------------
+      const savedOrders = JSON.parse(
+        localStorage.getItem("test_orders") || "[]"
+      );
+      const cartOnly = savedOrders
+        .filter((order) => order.action === "carted")
+        .sort((a, b) => new Date(b.cartedTime) - new Date(a.cartedTime));
       setCartItems(cartOnly);
       setLoading(false);
-    } catch (err) {
-      console.error("서버 오류:", err);
-      setError("서버 오류 발생");
-      setLoading(false);
+      // -------------- Test Code End --------------
+    } else {
+      // -------------- Post Code Start --------------
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.message || "장바구니 로드 실패");
+          setLoading(false);
+          return;
+        }
+        // action이 cart인 항목만 필터링
+        const cartOnly = data
+          .filter((order) => order.action === "carted")
+          .sort((a, b) => new Date(b.cartedTime) - new Date(a.cartedTime));
+        setCartItems(cartOnly);
+        setLoading(false);
+      } catch (err) {
+        console.error("서버 오류:", err);
+        setError("서버 오류 발생");
+        setLoading(false);
+      }
+      // -------------- Post Code End --------------
     }
-    */
-    // -------------- Post Code End --------------
   };
 
   // ---------------- 삭제 함수 ----------------
   const handleDelete = async (userId, cartedTime) => {
-    // -------------- Test Code Start --------------
-    const savedOrders = JSON.parse(localStorage.getItem("test_orders") || "[]");
-    const newOrders = savedOrders.filter(
-      (o) => !(o.id === userId && o.cartedTime === cartedTime)
-    );
-    localStorage.setItem("test_orders", JSON.stringify(newOrders));
-    setCartItems((prev) =>
-      prev.filter((o) => !(o.id === userId && o.cartedTime === cartedTime))
-    );
-    // -------------- Test Code End --------------
-
-    // -------------- Post Code Start --------------
-
-    /*
-      try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/orders`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id: userId, cartedTime, action: "carted" }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.message || "삭제 실패");
-        return;
-      }
-      setCartItems((prev) =>
-        prev.filter((o) => !(o.id === userId && o.cartedTime === cartedTime))
+    if (isForTest) {
+      // -------------- Test Code Start --------------
+      const savedOrders = JSON.parse(
+        localStorage.getItem("test_orders") || "[]"
       );
-    } catch (err) {
-      console.error("서버 삭제 오류:", err);
-      alert("서버 삭제 오류 발생");
-    }
-    */
+      const newOrders = savedOrders.filter(
+        (o) => !(o.id === userId && o.cartedTime === cartedTime)
+      );
+      localStorage.setItem("test_orders", JSON.stringify(newOrders));
+      const updatedCart = newOrders
+        .filter((order) => order.action === "carted")
+        .sort((a, b) => new Date(b.cartedTime) - new Date(a.cartedTime));
 
-    // -------------- Post Code End --------------
+      setCartItems(updatedCart);
+      // -------------- Test Code End --------------
+    } else {
+      // -------------- Post Code Start --------------
+
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/orders`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ id: userId, cartedTime, action: "carted" }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || "삭제 실패");
+          return;
+        }
+        setCartItems((prev) =>
+          prev
+            .filter((o) => !(o.id === userId && o.cartedTime === cartedTime))
+            .sort((a, b) => new Date(b.cartedTime) - new Date(a.cartedTime))
+        );
+      } catch (err) {
+        console.error("서버 삭제 오류:", err);
+        alert("서버 삭제 오류 발생");
+      }
+
+      // -------------- Post Code End --------------
+    }
   };
 
   // 주문하기 버튼
   const submitOrder = async () => {
-    // ---------------- Test 코드 ----------------
-    const savedOrders = JSON.parse(localStorage.getItem("test_orders") || "[]");
-    const updatedOrders = savedOrders.map((o) =>
-      o.action === "carted" ? { ...o, action: "ordered" } : o
-    );
-    localStorage.setItem("test_orders", JSON.stringify(updatedOrders));
-    setCartItems(updatedOrders.filter((o) => o.action === "carted"));
+    if (isForTest) {
+      // ---------------- Test 코드 ----------------
+      const savedOrders = JSON.parse(
+        localStorage.getItem("test_orders") || "[]"
+      );
 
-    alert(
-      `주문 완료! ${
-        updatedOrders.filter((o) => o.action === "ordered").length
-      }개 메뉴가 결제됨`
-    );
+      const now = new Date().toISOString();
 
-    // ---------------- Post 코드 ----------------
-    /*
-            try {
-              const token = localStorage.getItem("token");
-              const res = await fetch("/api/orders", {
-                method: "PUT", // 또는 PATCH
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  actionUpdate: {
-                    from: "carted",
-                    to: "ordered",
-                  },
-                }),
-              });
-              const data = await res.json();
-              if (!res.ok) {
-                alert(data.message || "주문 처리 실패");
-                return;
-              }
-              alert("주문 완료!");
-              loadCart(); // 다시 장바구니 로드
-            } catch (err) {
-              console.error(err);
-              alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
-            }
-            */
+      const orderedCount = savedOrders.filter(
+        (o) => o.action === "carted"
+      ).length;
+
+      const updatedOrders = savedOrders.map((o) => {
+        if (o.action === "carted") {
+          return {
+            ...o,
+            action: "ordered",
+            orderedTime: now,
+          };
+        }
+        return o;
+      });
+
+      localStorage.setItem("test_orders", JSON.stringify(updatedOrders));
+
+      const newCart = updatedOrders
+        .filter((o) => o.action === "carted")
+        .sort((a, b) => new Date(b.cartedTime) - new Date(a.cartedTime));
+      setCartItems(newCart);
+
+      alert(
+        `주문 완료! ${orderedCount}개 메뉴가 결제됨 (${new Date(
+          now
+        ).toLocaleString()})`
+      );
+    } else {
+      // ---------------- Post 코드 ----------------
+
+      try {
+        const token = localStorage.getItem("token");
+        const now = new Date().toISOString();
+        const res = await fetch("/api/orders", {
+          method: "PUT", // 또는 PATCH
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            actionUpdate: {
+              from: "carted",
+              to: "ordered",
+              orderedTime: now,
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || "주문 처리 실패");
+          return;
+        }
+        alert("주문 완료!");
+        loadCart(); // 다시 장바구니 로드
+      } catch (err) {
+        console.error(err);
+        alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
+      }
+    }
   };
 
   // ---------------- Cart 총합 계산 ----------------
