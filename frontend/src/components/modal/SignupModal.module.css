@@ -183,3 +183,30 @@ input[type="tel"]:focus {
   font-size: 14px;
   box-sizing: border-box;
 }
+
+.usernameWrapper {
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* 중복확인 버튼 */
+.checkBtn {
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: #eee;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.checkBtn:hover {
+  background-color: #ddd;
+}
+
+/* 에러 메시지 */
+.errorMsg {
+  color: red;
+  margin-top: 4px;
+  font-size: 12px;
+}

@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Home from "./components/home/Home"; // 추가
 import NavBar from "./components/common/nav_bar/NavBar";
 import LoginModal from "./components/modal/LoginModal";
 import SignupModal from "./components/modal/SignupModal"; // 새로 만드셔야 함
 import Story from "./components/story/Story"; // 새로 만든 컴포넌트 불러오기
-
 import Menu from "./components/menu/Menu"; // 추가
 import Cart from "./components/order/Cart";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import OrderHistory from "./components/order/OrderHistory";
 import AdminDashboard from "./components/admin/AdminDashboard";
+
+export let isForTest = false; // true for test, false for deploy
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -45,6 +46,21 @@ function App() {
   };
 
   const openLogin = (callback = () => {}) => {
+    if (isForTest) {
+      const users = JSON.parse(localStorage.getItem("test_users") || "[]");
+      if (!users.some((u) => u.username === "admin")) {
+        users.push({
+          username: "admin",
+          password: "1234",
+          name: "관리자",
+          email: "606Dinner@daebak.com",
+          phone: "01000000000",
+          address: "서울특별시 김구 김읍 김동",
+          cardNumber: "1111222233334444",
+        });
+        localStorage.setItem("test_users", JSON.stringify(users));
+      }
+    }
     setShowLogin(true);
     setLoginCallback(() => callback);
     setShowSignup(false);
