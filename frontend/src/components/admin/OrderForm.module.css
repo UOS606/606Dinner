@@ -1,0 +1,140 @@
+.container {
+  padding: 1rem;
+  background-color: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* 제목 */
+.title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* 탭 버튼 */
+.typeSelector {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.typeSelector button {
+  flex: 1;
+  padding: 0.6rem 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  color: #444;
+  transition: all 0.2s ease;
+}
+
+.typeSelector button:hover {
+  background-color: #f0f0f0;
+}
+
+.typeSelector button.activeBtn {
+  background-color: #5ba36b;
+  color: #fff;
+  border-color: #5ba36b;
+}
+
+/* 입력 리스트 */
+.inputList {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  margin-bottom: 0.4rem;
+  height: 6vh;
+  box-sizing: border-box;
+}
+
+/* 요소 비율 조정 */
+.itemName {
+  flex: 2; /* 이름이 길어도 줄바꿈 없이 맞춤 */
+  font-weight: 500;
+  color: #333;
+  text-align: left;
+}
+
+.inputRow input {
+  flex: 1;
+  min-width: 70px;
+  max-width: 100px;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.95rem;
+  display: flex;
+}
+
+.unit {
+  flex: 0.5;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: right;
+}
+
+/* 하단 버튼 */
+.actionBtn {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* 일반 주문 */
+.order {
+  background-color: #007bff;
+}
+
+.order:hover {
+  background-color: #0069d9;
+  transform: translateY(-1px);
+}
+
+/* 즉각 반영 */
+.apply {
+  background-color: #dc3545;
+}
+
+.apply:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+/* 스크롤바 */
+.inputList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.inputList::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import Home from "./components/home/Home"; // 추가
 import NavBar from "./components/common/nav_bar/NavBar";
 import LoginModal from "./components/modal/LoginModal";
@@ -11,7 +11,9 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import OrderHistory from "./components/order/OrderHistory";
 import AdminDashboard from "./components/admin/AdminDashboard";
 
-export let isForTest = false; // true for test, false for deploy
+import { defaultStock, staff } from "./components/common/Info";
+
+export let isForTest = true; // true for test, false for deploy
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -23,6 +25,7 @@ function App() {
   const [hidden, setHidden] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 새로고침 시 localStorage 토큰 체크
   useEffect(() => {
@@ -30,7 +33,13 @@ function App() {
     const savedUsername = localStorage.getItem("username");
     setIsLoggedIn(!!token); // true or false
     setUsername(savedUsername);
-  }, []);
+
+    if (token && savedUsername === "admin") {
+      if (location.pathname === "/") {
+        navigate("/admin");
+      }
+    }
+  }, [navigate, location.pathname]);
 
   const handleLoginSuccess = (name) => {
     setIsLoggedIn(true);
@@ -59,6 +68,13 @@ function App() {
           cardNumber: "1111222233334444",
         });
         localStorage.setItem("test_users", JSON.stringify(users));
+      }
+
+      if (!localStorage.getItem("test_ingredients")) {
+        localStorage.setItem("test_ingredients", JSON.stringify(defaultStock));
+      }
+      if (!localStorage.getItem("test_staffs")) {
+        localStorage.setItem("test_staffs", JSON.stringify(staff));
       }
     }
     setShowLogin(true);
@@ -108,30 +124,6 @@ function App() {
               adminOnly
             >
               <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/situation"
-          element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              username={username}
-              adminOnly
-            >
-              {/* 필요시 AdminOrders 컴포넌트 */}
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/inventory"
-          element={
-            <ProtectedRoute
-              isLoggedIn={isLoggedIn}
-              username={username}
-              adminOnly
-            >
-              {/* 필요시 AdminInventory 컴포넌트 */}
             </ProtectedRoute>
           }
         />

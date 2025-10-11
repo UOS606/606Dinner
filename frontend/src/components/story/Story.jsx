@@ -1,7 +1,14 @@
 import React from "react";
 import styles from "./Story.module.css";
+import { useNavigate } from "react-router-dom";
 
 const Story = () => {
+  const navigate = useNavigate();
+
+  if (localStorage.getItem("username") === "admin") {
+    navigate("/admin");
+  }
+
   const lines = [
     "특별한 날,",
     "집에서 편안히 보내며",

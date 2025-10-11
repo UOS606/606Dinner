@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import OrderModal from "../modal/OrderModal";
 import LoginModal from "../modal/LoginModal"; // 로그인 모달
 import styles from "./Menu.module.css";
+import { useNavigate } from "react-router-dom";
 
 const menus = [
   { name: "Valentine", img: "/images/dinner/valentine/default.png" },
@@ -14,6 +15,12 @@ const menus = [
 ];
 
 const Menu = ({ isLoggedIn, handleLoginSuccess }) => {
+  const navigate = useNavigate();
+
+  if (localStorage.getItem("username") === "admin") {
+    navigate("/admin");
+  }
+
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [loginCallback, setLoginCallback] = useState(null);

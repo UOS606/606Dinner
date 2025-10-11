@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import common from "./OrderCommon.module.css";
 import styles from "./Cart.module.css";
-import { calculateTotalPrice } from "../common/PriceInfo";
+import { calculateTotalPrice } from "../common/Info";
 import { isForTest } from "../../App";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+  const navigate = useNavigate();
+
+  if (localStorage.getItem("username") === "admin") {
+    navigate("/admin");
+  }
+
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
