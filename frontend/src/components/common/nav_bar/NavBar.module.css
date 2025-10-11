@@ -24,6 +24,11 @@
   font-weight: bold;
 }
 
+.admin {
+  font-size: 28px;
+  font-weight: bold;
+}
+
 .menu a {
   text-decoration: none;
   color: var(--primary-blue, #0066b3);

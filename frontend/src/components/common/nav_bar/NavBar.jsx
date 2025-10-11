@@ -54,8 +54,7 @@ const NavBar = ({
       <div className={styles.menu}>
         {username === "admin" ? (
           <>
-            <Link to="admin/inventory">재고 관리</Link>
-            <Link to="admin/situation">직원 및 주문 현황</Link>
+            <span className={styles.admin}>관리자용 페이지</span>
           </>
         ) : (
           <>

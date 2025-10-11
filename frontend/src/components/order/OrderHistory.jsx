@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import common from "./OrderCommon.module.css";
 import styles from "./OrderHistory.module.css";
-import { calculateTotalPrice } from "../common/PriceInfo";
+import { calculateTotalPrice } from "../common/Info";
 import { isForTest } from "../../App";
+import { useNavigate } from "react-router-dom";
 
 const OrderHistory = () => {
+  const navigate = useNavigate();
+
+  if (localStorage.getItem("username") === "admin") {
+    navigate("/admin");
+  }
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,7 +26,7 @@ const OrderHistory = () => {
     setError("");
 
     if (isForTest) {
-      // ---------- 🧪 TEST CODE ----------
+      // ----------  TEST CODE ----------
       const savedOrders = JSON.parse(
         localStorage.getItem("test_orders") || "[]"
       );
@@ -133,11 +140,15 @@ const OrderHistory = () => {
 
   const getStatusText = (action) => {
     switch (action) {
-      case "ordered":
+      case "ordered": // orderedTime
+        return "주문 접수";
+      case "cooking": // 조리 직원 배정 시
         return "조리 중";
-      case "cooked":
+      case "cooked": // cookedTime
+        return "조리 완료";
+      case "delivering": // 배달 직원 배정 시
         return "배달 중";
-      case "delivered":
+      case "delivered": // deliveredTime
         return "배달 완료";
       default:
         return "확인 중";
@@ -220,28 +231,28 @@ const OrderHistory = () => {
                       : "-"}
                   </p>
                   <p>
-                    배달 시작:{" "}
+                    조리 완료:{" "}
                     {order.cookedTime
                       ? new Date(order.cookedTime).toLocaleString("ko-KR", {
+                          year: "numeric",
                           month: "2-digit",
                           day: "2-digit",
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : "조리 중"}
+                      : "-"}
                   </p>
                   <p>
                     배달 완료:{" "}
                     {order.deliveredTime
                       ? new Date(order.deliveredTime).toLocaleString("ko-KR", {
+                          year: "numeric",
                           month: "2-digit",
                           day: "2-digit",
                           hour: "2-digit",
                           minute: "2-digit",
                         })
-                      : order.cookedTime === null
-                      ? "-"
-                      : "배달 중"}
+                      : "-"}
                   </p>
                 </div>
 
