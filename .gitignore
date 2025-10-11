@@ -46,3 +46,12 @@ out/
 /frontend/node_modules/
 /frontend/build/
 *.log
+
+# --- Backend 전용 캐시/산출물 무시 ---
+backend/.gradle/
+backend/.idea/
+backend/build/
+
+# --- Backend의 Gradle wrapper는 버전관리(예외 허용) ---
+!backend/gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.properties
