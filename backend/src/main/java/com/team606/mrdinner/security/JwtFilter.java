@@ -22,7 +22,6 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
-    // 로그인/회원가입/프리플라이트는 JWT 검사 스킵
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
@@ -41,22 +40,20 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = authHeader.substring(7);
-            try {
-                // 유효하면 username, 아니면 null/예외
-                String username = jwtUtil.validateAndGetUsername(token);
 
-                if (username != null) {
+            try {
+                if (jwtUtil.validate(token)) {
+                    String username = jwtUtil.getUsername(token);
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     username,
                                     null,
-                                    Collections.emptyList() // 권한 필요하면 채워넣기
+                                    Collections.emptyList()
                             );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception e) {
-                // 여기서 401/403 응답을 직접 쓰지 않음! (시큐리티 예외핸들러가 처리)
                 SecurityContextHolder.clearContext();
             }
         }
