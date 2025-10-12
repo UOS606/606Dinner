@@ -99,3 +99,34 @@
 .placeOrderBtn:hover {
   opacity: 0.85;
 }
+
+.couponBtn {
+  padding: 8px 14px;
+  border: 2px solid var(--primary-red, #e41e26);
+  border-radius: 8px;
+  background-color: #fff;
+  color: var(--primary-red, #e41e26);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.couponBtn:hover {
+  background-color: var(--primary-red, #e41e26);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(228, 30, 38, 0.25);
+}
+
+/* 쿠폰 해제 버튼 (적용된 상태) */
+.couponBtn.applied {
+  background-color: var(--primary-red, #e41e26);
+  color: #fff;
+  border: 2px solid var(--primary-red, #e41e26);
+}
+
+.couponBtn.applied:hover {
+  background-color: #fff;
+  color: var(--primary-red, #e41e26);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}

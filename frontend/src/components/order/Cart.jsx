@@ -1,18 +1,63 @@
 import React, { useEffect, useState } from "react";
 import common from "./OrderCommon.module.css";
 import styles from "./Cart.module.css";
-import { calculateTotalPrice } from "../common/PriceInfo";
+import { calculateTotalPrice } from "../common/Info";
 import { isForTest } from "../../App";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+  const navigate = useNavigate();
+
+  if (localStorage.getItem("username") === "admin") {
+    navigate("/admin");
+  }
+
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [unusedCouponCount, setUnusedCouponCount] = useState(0);
 
   useEffect(() => {
     loadCart();
+    loadCoupons();
   }, []);
 
+  const loadCoupons = async () => {
+    if (isForTest) {
+      const testCoupons =
+        JSON.parse(localStorage.getItem("test_coupons")) || [];
+      const userId = localStorage.getItem("username");
+      const myCoupon = testCoupons.find((c) => c.id === userId);
+      if (myCoupon) {
+        setUnusedCouponCount(myCoupon.unusedCouponCount); // 추가
+      }
+    } else {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/coupons", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setUnusedCouponCount(data.unusedCouponCount);
+      } catch (err) {
+        console.error("쿠폰 불러오기 실패:", err);
+      }
+    }
+  };
+
+  const canApplyCoupon = (cartedTime) =>
+    unusedCouponCount > 0 &&
+    !cartItems.some((o) => o.couponApplied && o.cartedTime !== cartedTime);
+
+  const handleCouponToggle = (cartedTime, apply) => {
+    setCartItems((prev) =>
+      prev.map((o) =>
+        o.cartedTime === cartedTime ? { ...o, couponApplied: apply } : o
+      )
+    );
+
+    setUnusedCouponCount((prev) => (apply ? prev - 1 : prev + 1));
+  };
   // ---------------- 장바구니 데이터 로드 ----------------
   const loadCart = async () => {
     setLoading(true);
@@ -111,24 +156,30 @@ const Cart = () => {
 
   // 주문하기 버튼
   const submitOrder = async () => {
+    const usedCount = cartItems.filter((o) => o.couponApplied).length;
+    const now = new Date().toISOString();
+
     if (isForTest) {
       // ---------------- Test 코드 ----------------
       const savedOrders = JSON.parse(
         localStorage.getItem("test_orders") || "[]"
       );
 
-      const now = new Date().toISOString();
-
       const orderedCount = savedOrders.filter(
         (o) => o.action === "carted"
       ).length;
 
       const updatedOrders = savedOrders.map((o) => {
-        if (o.action === "carted") {
+        const currentCartItem = cartItems.find(
+          (item) => item.cartedTime === o.cartedTime
+        );
+
+        if (o.action === "carted" && currentCartItem) {
           return {
             ...o,
             action: "ordered",
             orderedTime: now,
+            isCouponUsed: currentCartItem.couponApplied || false,
           };
         }
         return o;
@@ -141,17 +192,39 @@ const Cart = () => {
         .sort((a, b) => new Date(b.cartedTime) - new Date(a.cartedTime));
       setCartItems(newCart);
 
+      const savedCoupons =
+        JSON.parse(localStorage.getItem("test_coupons")) || [];
+      const userId = localStorage.getItem("username");
+      const updatedCoupons = savedCoupons.map((c) => {
+        if (c.id === userId) {
+          return {
+            ...c,
+            unusedCouponCount: c.unusedCouponCount - usedCount,
+            usedCouponCount: (c.usedCouponCount || 0) + usedCount,
+          };
+        }
+        return c;
+      });
+      localStorage.setItem("test_coupons", JSON.stringify(updatedCoupons));
+
       alert(
-        `주문 완료! ${orderedCount}개 메뉴가 결제됨 (${new Date(
+        `주문 완료! 쿠폰 ${usedCount}매 사용하여 ${orderedCount}개 메뉴가 결제됨 (${new Date(
           now
         ).toLocaleString()})`
       );
+
+      window.location.reload();
     } else {
       // ---------------- Post 코드 ----------------
 
       try {
         const token = localStorage.getItem("token");
-        const now = new Date().toISOString();
+
+        const ordersToUpdate = cartItems.map((o) => ({
+          cartedTime: o.cartedTime,
+          isCouponUsed: o.couponApplied || false,
+        }));
+
         const res = await fetch("/api/orders", {
           method: "PUT", // 또는 PATCH
           headers: {
@@ -164,6 +237,7 @@ const Cart = () => {
               to: "ordered",
               orderedTime: now,
             },
+            orders: ordersToUpdate,
           }),
         });
         const data = await res.json();
@@ -171,8 +245,25 @@ const Cart = () => {
           alert(data.message || "주문 처리 실패");
           return;
         }
-        alert("주문 완료!");
-        loadCart(); // 다시 장바구니 로드
+
+        if (usedCount > 0) {
+          await fetch("/api/coupons", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              action: "use",
+              usedCount, // unusedCouponCount -= usedCount
+              // usedCouponCount += usedCount
+            }),
+          });
+        }
+
+        alert(`주문 완료! 쿠폰 ${usedCount}매 사용되었습니다.`);
+
+        window.location.reload();
       } catch (err) {
         console.error(err);
         alert("서버 오류 발생. 잠시 후 다시 시도해주세요.");
@@ -195,7 +286,9 @@ const Cart = () => {
       order.style,
       units
     );
-    return sum + orderPrice;
+    return (
+      sum + (order.couponApplied ? Math.round(orderPrice * 0.7) : orderPrice)
+    );
   }, 0);
 
   if (loading) return <p className={styles.loading}>로딩 중...</p>;
@@ -219,6 +312,27 @@ const Cart = () => {
                 coffeeUnit:
                   order.items.find((i) => i.name === "커피")?.unit || "잔",
               };
+
+              const discountedPrice = order.couponApplied
+                ? Math.round(
+                    calculateTotalPrice(
+                      order.items.reduce((acc, i) => {
+                        acc[i.name] = i.qty;
+                        return acc;
+                      }, {}),
+                      order.style,
+                      units
+                    ) * 0.7
+                  )
+                : calculateTotalPrice(
+                    order.items.reduce((acc, i) => {
+                      acc[i.name] = i.qty;
+                      return acc;
+                    }, {}),
+                    order.style,
+                    units
+                  );
+
               return (
                 <div key={order.id} className={styles.cartItem}>
                   <h3>
@@ -249,17 +363,26 @@ const Cart = () => {
                   </ul>
 
                   <p className={styles.totalPrice}>
-                    가격:{" "}
-                    {calculateTotalPrice(
-                      order.items.reduce((acc, i) => {
-                        acc[i.name] = i.qty;
-                        return acc;
-                      }, {}),
-                      order.style,
-                      units
-                    ).toLocaleString()}
-                    원
+                    가격: {discountedPrice.toLocaleString()}원
                   </p>
+
+                  {order.couponApplied ? (
+                    <button
+                      className={styles.couponBtn}
+                      onClick={() =>
+                        handleCouponToggle(order.cartedTime, false)
+                      }
+                    >
+                      쿠폰 해제
+                    </button>
+                  ) : canApplyCoupon(order.cartedTime) ? (
+                    <button
+                      className={styles.couponBtn}
+                      onClick={() => handleCouponToggle(order.cartedTime, true)}
+                    >
+                      쿠폰 적용
+                    </button>
+                  ) : null}
 
                   <button
                     className={styles.deleteBtn}

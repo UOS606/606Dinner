@@ -1,7 +1,9 @@
 // src/components/NavBar.jsx
-import React from "react";
+import { useState, useEffect } from "react";
 import styles from "./NavBar.module.css";
 import { Link, useNavigate } from "react-router-dom";
+
+import { isForTest } from "../../../App";
 
 const NavBar = ({
   onLoginClick,
@@ -12,7 +14,35 @@ const NavBar = ({
   username,
   onLogout,
 }) => {
+  const [couponCount, setCouponCount] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCouponStatus = async (userId) => {
+      if (!userId) return;
+
+      if (isForTest) {
+        const testCoupons =
+          JSON.parse(localStorage.getItem("test_coupons")) || [];
+        const userCoupon = testCoupons.find((c) => c.id === userId);
+        setCouponCount(userCoupon ? userCoupon.unusedCouponCount : 0);
+      } else {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch("/api/coupons", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          setCouponCount(data?.unusedCouponCount ?? 0);
+        } catch (err) {
+          console.error("쿠폰 정보를 불러오지 못했습니다:", err);
+          setCouponCount(0);
+        }
+      }
+    };
+
+    fetchCouponStatus(username);
+  }, [username]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -54,8 +84,7 @@ const NavBar = ({
       <div className={styles.menu}>
         {username === "admin" ? (
           <>
-            <Link to="admin/inventory">재고 관리</Link>
-            <Link to="admin/situation">직원 및 주문 현황</Link>
+            <span className={styles.admin}>관리자용 페이지</span>
           </>
         ) : (
           <>
@@ -79,6 +108,18 @@ const NavBar = ({
       <div className={styles.actions}>
         {isLoggedIn ? (
           <>
+            {username !== "admin" && (
+              <span className={styles.couponInfo}>
+                {couponCount === null ? (
+                  "쿠폰 정보를 불러오는 중..."
+                ) : (
+                  <>
+                    쿠폰 <strong>{couponCount}</strong>매 보유 중
+                  </>
+                )}
+              </span>
+            )}
+
             <button onClick={handleLogout} className={styles.loginBtn}>
               로그아웃
             </button>

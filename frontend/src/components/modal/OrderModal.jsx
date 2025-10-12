@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styles from "./OrderModal.module.css";
-import { calculateTotalPrice } from "../common/PriceInfo";
+import { calculateTotalPrice } from "../common/Info";
 import { isForTest } from "../../App";
+import { unitConversion } from "../common/Info";
 
 const menuItemsData = {
   Valentine: [
@@ -15,7 +16,7 @@ const menuItemsData = {
     { name: "스테이크", defaultQty: 1 },
   ],
   English: [
-    { name: "에그 스크램블", defaultQty: 1 },
+    { name: "에그스크램블", defaultQty: 1 },
     { name: "베이컨", defaultQty: 1 },
     { name: "빵", defaultQty: 1 },
     { name: "스테이크", defaultQty: 1 },
@@ -72,10 +73,33 @@ const OrderModal = ({
         .replace(/\s/g, "_")}/default.png`;
 
   const handleQtyChange = (item, delta) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [item]: Math.max(0, prev[item] + delta),
-    }));
+    let maxQty = 0;
+    if (isForTest) {
+      const testIngredients = JSON.parse(
+        localStorage.getItem("test_ingredients") || "{}"
+      );
+      const unit =
+        item === "와인"
+          ? wineUnit
+          : item === "샴페인"
+          ? champagneUnit
+          : item === "커피"
+          ? coffeeUnit
+          : "개";
+      const conversion = unitConversion[unit] || 1;
+      const available =
+        testIngredients[item] != null ? testIngredients[item] / conversion : 0;
+      maxQty = Math.floor(available);
+    } else {
+    }
+
+    setQuantities((prev) => {
+      const newQty = Math.max(0, prev[item] + delta);
+      return {
+        ...prev,
+        [item]: Math.min(newQty, maxQty),
+      };
+    });
   };
 
   const handleAddItem = (item) => {
@@ -100,6 +124,13 @@ const OrderModal = ({
       return;
     }
 
+    const savedUsers = JSON.parse(localStorage.getItem("test_users") || "[]");
+    const currentUser = savedUsers.find(
+      (u) => u.username === localStorage.getItem("username")
+    );
+    const userAddress = currentUser?.address || null;
+    const name = currentUser?.name || null;
+
     const orderData = {
       id: localStorage.getItem("username"),
       cartedTime: new Date().toISOString(), // 장바구니 담은 시간
@@ -107,18 +138,22 @@ const OrderModal = ({
       cookedTime: null, // 조리 완료 시간(배달 시작 시간)
       deliveredTime: null, // 배달 완료 시간
       menuName: menu.name,
-      style: selectedStyle || "default",
+      style: selectedStyle,
       items: Object.entries(quantities).map(([name, qty]) => {
         let unit = "개";
-        if (name === "에그 스크램블" || name === "베이컨") unit = "인분";
+        if (name === "에그스크램블" || name === "베이컨") unit = "인분";
         if (name === "스테이크" || name === "샐러드") unit = "접시";
         if (name === "와인") unit = wineUnit;
         if (name === "샴페인") unit = champagneUnit;
         if (name === "커피") unit = coffeeUnit;
         return { name, qty, unit };
       }),
-      action, // carted
-      address: null, // 백에서 채워야 할 듯
+      action, // carted (장바구니 담기)
+      address: userAddress,
+      name: name, // 실제 이름, 성명
+      // address, name은 테스트에서는 내 이름, 주소가 가지만,
+      // 실제로는 백에서 채워줘야 하는 내용
+      isCouponUsed: null,
     };
 
     if (isForTest) {
