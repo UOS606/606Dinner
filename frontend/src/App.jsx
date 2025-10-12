@@ -13,7 +13,7 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 
 import { defaultStock, staff } from "./components/common/Info";
 
-export let isForTest = true; // true for test, false for deploy
+export let isForTest = false; // true for test, false for deploy
 
 function App() {
   // 테스트 용 DB 초기화
