@@ -42,6 +42,7 @@ const StockStatus = () => {
             </span>
           </li>
         ))}
+        ``
       </ul>
       <div className={styles.lastUpdate}>
         마지막 갱신: {lastUpdate || "로딩 중..."}

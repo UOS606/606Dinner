@@ -121,3 +121,25 @@
   display: flex;
   flex-direction: column;
 }
+
+.couponInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e3f2ff 0%, #f0f8ff 100%);
+  color: #0066b3;
+  font-weight: 600;
+  border: 1px solid #cce5ff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+/* 쿠폰 숫자 강조 */
+.couponInfo strong {
+  color: #e41e26;
+  margin: 0 3px;
+  font-weight: 700;
+}

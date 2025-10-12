@@ -185,6 +185,10 @@ const OrderHistory = () => {
               units
             );
 
+            const discountedPrice = order.isCouponUsed
+              ? Math.round(totalPrice * 0.7)
+              : totalPrice;
+
             return (
               <div key={idx} className={styles.orderItem}>
                 <h3>
@@ -214,7 +218,10 @@ const OrderHistory = () => {
                 </ul>
 
                 <p className={styles.price}>
-                  총 가격: {totalPrice.toLocaleString()}원
+                  가격: {discountedPrice.toLocaleString()}원{" "}
+                  {order.isCouponUsed && (
+                    <span className={styles.couponLabel}>쿠폰 적용</span>
+                  )}
                 </p>
 
                 <div className={styles.timeInfo}>

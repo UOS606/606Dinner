@@ -63,6 +63,11 @@ const SignupModal = ({ onClose, onShowLogin }) => {
       return;
     }
 
+    if (form.username.length < 4 || form.username.length > 20) {
+      alert("4~20자로 입력해 주세요.");
+      return;
+    }
+
     if (form.id === "admin") {
       alert("다른 아이디를 입력하세요.");
       return;
@@ -143,7 +148,6 @@ const SignupModal = ({ onClose, onShowLogin }) => {
     if (isForTest) {
       const users = JSON.parse(localStorage.getItem("test_users") || "[]");
 
-      // 주소 합치기
       const newUser = {
         name: form.name,
         email: form.email,
@@ -157,27 +161,24 @@ const SignupModal = ({ onClose, onShowLogin }) => {
       users.push(newUser);
       localStorage.setItem("test_users", JSON.stringify(users));
 
+      const coupons = JSON.parse(localStorage.getItem("test_coupons") || "[]");
+
+      const newUserAndCoupon = {
+        id: form.username,
+        deliveredOrderCount: 0,
+        unusedCouponCount: 0,
+        usedCouponCount: 0,
+      };
+
+      coupons.push(newUserAndCoupon);
+      localStorage.setItem("test_coupons", JSON.stringify(coupons));
+
       alert("회원가입 완료! 로그인 해주세요.");
       onClose();
       onShowLogin();
       return;
     } else {
       try {
-        const checkRes = await fetch(
-          `/api/user/check-username/${form.username}`
-        );
-        if (checkRes.ok) {
-          const { exists } = await checkRes.json();
-          if (exists) {
-            alert("이미 사용 중인 아이디입니다.");
-            return;
-          }
-        } else {
-          console.error("중복검사 실패:", checkRes.status);
-          alert("아이디 중복검사 중 오류가 발생했습니다.");
-          return;
-        }
-
         const response = await fetch("/api/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -196,6 +197,27 @@ const SignupModal = ({ onClose, onShowLogin }) => {
         if (!response.ok || !data.success) {
           alert(data.message || "회원가입 실패. 다시 시도해 주세요.");
           return;
+        }
+
+        try {
+          const token = localStorage.getItem("token");
+
+          await fetch("/api/coupons", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              id: form.username,
+              deliveredOrderCount: 0,
+              unusedCouponCount: 0,
+              usedCouponCount: 0, // deliveredOrderCount / 5 =
+            }),
+          });
+        } catch (couponErr) {
+          console.error("쿠폰 생성 실패:", couponErr);
+          // 쿠폰 생성 실패는 회원가입을 막지는 않음
         }
 
         alert("회원가입 성공! 로그인 해주세요.");
