@@ -32,7 +32,7 @@ const Home = () => {
       setBannerIndex((prev) => (prev + 1) % bannerImages.length);
     }, 10000);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   // 오른쪽 메뉴 (5초마다 변경)
   useEffect(() => {
@@ -40,7 +40,7 @@ const Home = () => {
       setMenuIndex((prev) => (prev + 1) % menuSets.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  });
 
   return (
     <div className={styles.homeLayout}>

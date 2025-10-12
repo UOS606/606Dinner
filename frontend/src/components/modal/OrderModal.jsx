@@ -16,7 +16,7 @@ const menuItemsData = {
     { name: "스테이크", defaultQty: 1 },
   ],
   English: [
-    { name: "에그 스크램블", defaultQty: 1 },
+    { name: "에그스크램블", defaultQty: 1 },
     { name: "베이컨", defaultQty: 1 },
     { name: "빵", defaultQty: 1 },
     { name: "스테이크", defaultQty: 1 },
@@ -129,7 +129,7 @@ const OrderModal = ({
       (u) => u.username === localStorage.getItem("username")
     );
     const userAddress = currentUser?.address || null;
-    const userName = currentUser?.name || null;
+    const name = currentUser?.name || null;
 
     const orderData = {
       id: localStorage.getItem("username"),
@@ -141,7 +141,7 @@ const OrderModal = ({
       style: selectedStyle,
       items: Object.entries(quantities).map(([name, qty]) => {
         let unit = "개";
-        if (name === "에그 스크램블" || name === "베이컨") unit = "인분";
+        if (name === "에그스크램블" || name === "베이컨") unit = "인분";
         if (name === "스테이크" || name === "샐러드") unit = "접시";
         if (name === "와인") unit = wineUnit;
         if (name === "샴페인") unit = champagneUnit;
@@ -150,9 +150,10 @@ const OrderModal = ({
       }),
       action, // carted (장바구니 담기)
       address: userAddress,
-      name: userName,
+      name: name, // 실제 이름, 성명
       // address, name은 테스트에서는 내 이름, 주소가 가지만,
       // 실제로는 백에서 채워줘야 하는 내용
+      isCouponUsed: null,
     };
 
     if (isForTest) {

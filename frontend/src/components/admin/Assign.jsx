@@ -10,14 +10,35 @@ const Assign = () => {
 
   useEffect(() => {
     loadOrders();
+
     if (isForTest) {
-      if (isForTest) {
-        const savedStaff = JSON.parse(
-          localStorage.getItem("test_staffs") || "{}"
-        );
-        if (savedStaff.cook && savedStaff.delivery) setStaff(savedStaff);
-      }
+      const savedStaff = JSON.parse(
+        localStorage.getItem("test_staffs") || "{}"
+      );
+      if (savedStaff.cook && savedStaff.delivery) setStaff(savedStaff);
+    } else {
+      const loadStaff = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch("/api/staffs", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const data = await res.json(); // 서버에서 { cook: [...], delivery: [...] } 형태로 전달받는다고 가정
+          setStaff(data);
+        } catch (err) {
+          console.error("loadStaff API error:", err);
+        }
+      };
+      loadStaff();
     }
+
+    const intervalId = setInterval(() => {
+      loadOrders();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const loadOrders = async () => {
@@ -148,8 +169,26 @@ const Assign = () => {
             if (testIngredients[item.name] < 0) testIngredients[item.name] = 0;
           }
         });
+        localStorage.setItem(
+          "test_ingredients",
+          JSON.stringify(testIngredients)
+        );
       }
-      localStorage.setItem("test_ingredients", JSON.stringify(testIngredients));
+
+      if (type === "delivery") {
+        const coupons = JSON.parse(
+          localStorage.getItem("test_coupons") || "[]"
+        );
+        const target = coupons.find((c) => c.id === userId);
+        if (target) {
+          target.deliveredOrderCount += 1;
+          // 5의 배수일 때 쿠폰 지급
+          if (target.deliveredOrderCount % 5 === 0) {
+            target.unusedCouponCount += 1;
+          }
+        }
+        localStorage.setItem("test_coupons", JSON.stringify(coupons));
+      }
     } else {
       try {
         const token = localStorage.getItem("token");
@@ -194,6 +233,26 @@ const Assign = () => {
             }),
           });
         }
+
+        if (type === "delivery") {
+          await fetch(`/api/coupons`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              id: userId,
+              action: "delivered",
+            }),
+          });
+        }
+
+        /* 
+          서버에서 deliveredOrderCount += 1 처리,
+          그 후 deliveredOrderCount % 5 == 0 이라면 
+          쿠폰 1매 발급 (unusedCouponCount += 1)
+        */
       } catch (err) {
         console.error("markComplete API error:", err);
       }

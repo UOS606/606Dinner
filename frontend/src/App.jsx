@@ -16,6 +16,36 @@ import { defaultStock, staff } from "./components/common/Info";
 export let isForTest = true; // true for test, false for deploy
 
 function App() {
+  // 테스트 용 DB 초기화
+  if (isForTest) {
+    const users = JSON.parse(localStorage.getItem("test_users") || "[]");
+    if (!users.some((u) => u.username === "admin")) {
+      users.push({
+        username: "admin",
+        password: "1234",
+        name: "관리자",
+        email: "606Dinner@daebak.com",
+        phone: "01000000000",
+        address: "서울특별시 김구 김읍 김동",
+        cardNumber: "1111222233334444",
+      });
+      localStorage.setItem("test_users", JSON.stringify(users));
+    }
+
+    if (!localStorage.getItem("test_ingredients")) {
+      localStorage.setItem("test_ingredients", JSON.stringify(defaultStock));
+    }
+    if (!localStorage.getItem("test_staffs")) {
+      localStorage.setItem("test_staffs", JSON.stringify(staff));
+    }
+    if (!localStorage.getItem("test_orders")) {
+      localStorage.setItem("test_orders", "[]");
+    }
+    if (!localStorage.getItem("test_coupons")) {
+      localStorage.setItem("test_coupons", "[]");
+    }
+  }
+
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
 
@@ -55,28 +85,6 @@ function App() {
   };
 
   const openLogin = (callback = () => {}) => {
-    if (isForTest) {
-      const users = JSON.parse(localStorage.getItem("test_users") || "[]");
-      if (!users.some((u) => u.username === "admin")) {
-        users.push({
-          username: "admin",
-          password: "1234",
-          name: "관리자",
-          email: "606Dinner@daebak.com",
-          phone: "01000000000",
-          address: "서울특별시 김구 김읍 김동",
-          cardNumber: "1111222233334444",
-        });
-        localStorage.setItem("test_users", JSON.stringify(users));
-      }
-
-      if (!localStorage.getItem("test_ingredients")) {
-        localStorage.setItem("test_ingredients", JSON.stringify(defaultStock));
-      }
-      if (!localStorage.getItem("test_staffs")) {
-        localStorage.setItem("test_staffs", JSON.stringify(staff));
-      }
-    }
     setShowLogin(true);
     setLoginCallback(() => callback);
     setShowSignup(false);
