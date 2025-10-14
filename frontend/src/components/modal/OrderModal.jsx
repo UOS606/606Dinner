@@ -60,8 +60,8 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
       const fetchData = async () => {
         try {
           const [menuRes, stockRes] = await Promise.all([
-            fetch("/api/menu"),
-            fetch("/api/ingredients"),
+            fetch("/api/menu"), // 위에 있는 메뉴 리스트 형태
+            fetch("/api/stock"), // common/Info.js의 defaultStock을 불러옴
           ]);
 
           const menuData = await menuRes.json();
