@@ -10,10 +10,10 @@ export const ingredients = {
   에그스크램블: { unit: "인분", price: 5000 },
 }; // 잔은 1/5로 계산
 
-export const unitConversion = {
-  잔: 0.2, // 1잔 = 0.2 병/포트
-  병: 1,
-  포트: 1,
+export const styles = {
+  simple: 0,
+  grand: 5000,
+  deluxe: 10000,
 };
 
 export const defaultStock = {
@@ -26,6 +26,12 @@ export const defaultStock = {
   스테이크: 210,
   베이컨: 60,
   에그스크램블: 60,
+};
+
+export const unitConversion = {
+  잔: 0.2, // 1잔 = 0.2 병/포트
+  병: 1,
+  포트: 1,
 };
 
 export const staff = {
@@ -43,12 +49,6 @@ export const staff = {
     ["라", { userId: null, cartedTime: null }],
     ["마", { userId: null, cartedTime: null }],
   ],
-};
-
-export const styles = {
-  simple: 0,
-  grand: 5000,
-  deluxe: 10000,
 };
 
 // 단가 기반으로 각 항목 가격 계산 함수
