@@ -1,53 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./OrderModal.module.css";
 import { calculateTotalPrice } from "../common/Info";
 import { isForTest } from "../../App";
 import { unitConversion } from "../common/Info";
 
-const menuItemsData = {
-  Valentine: [
-    { name: "와인", defaultQty: 1 },
-    { name: "스테이크", defaultQty: 1 },
-  ],
-  French: [
-    { name: "커피", defaultQty: 1 },
-    { name: "와인", defaultQty: 1 },
-    { name: "샐러드", defaultQty: 1 },
-    { name: "스테이크", defaultQty: 1 },
-  ],
-  English: [
-    { name: "에그스크램블", defaultQty: 1 },
-    { name: "베이컨", defaultQty: 1 },
-    { name: "빵", defaultQty: 1 },
-    { name: "스테이크", defaultQty: 1 },
-  ],
-  "Champagne Feast": [
-    { name: "샴페인", defaultQty: 1 },
-    { name: "와인", defaultQty: 1 },
-    { name: "커피", defaultQty: 1 },
-    { name: "바게트", defaultQty: 4 },
-    { name: "스테이크", defaultQty: 2 },
-  ],
-};
-
-const OrderModal = ({
-  menu,
-  onClose,
-  isLoggedIn,
-  onShowLogin,
-  hidden,
-  setHidden,
-}) => {
+const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const stylesList = ["simple", "grand", "deluxe"];
 
   const [selectedStyle, setSelectedStyle] = useState("");
 
-  const [quantities, setQuantities] = useState(
-    menuItemsData[menu.name].reduce((acc, item) => {
-      acc[item.name] = item.defaultQty;
-      return acc;
-    }, {})
-  );
+  const [menuItemsData, setMenuItemsData] = useState({});
+
+  const [stock, setStock] = useState({});
+
+  const [quantities, setQuantities] = useState({});
 
   const [wineUnit, setWineUnit] = useState(
     menu.name === "Champagne Feast" ? "병" : "잔"
@@ -55,6 +21,91 @@ const OrderModal = ({
   const [champagneUnit, setChampagneUnit] = useState("병");
   const [coffeeUnit, setCoffeeUnit] = useState("잔");
   const [showAddons, setShowAddons] = useState(false);
+
+  useEffect(() => {
+    if (isForTest) {
+      const testData = {
+        Valentine: [
+          { name: "와인", defaultQty: 1 },
+          { name: "스테이크", defaultQty: 1 },
+        ],
+        French: [
+          { name: "커피", defaultQty: 1 },
+          { name: "와인", defaultQty: 1 },
+          { name: "샐러드", defaultQty: 1 },
+          { name: "스테이크", defaultQty: 1 },
+        ],
+        English: [
+          { name: "에그스크램블", defaultQty: 1 },
+          { name: "베이컨", defaultQty: 1 },
+          { name: "빵", defaultQty: 1 },
+          { name: "스테이크", defaultQty: 1 },
+        ],
+        "Champagne Feast": [
+          { name: "샴페인", defaultQty: 1 },
+          { name: "와인", defaultQty: 1 },
+          { name: "커피", defaultQty: 1 },
+          { name: "바게트", defaultQty: 4 },
+          { name: "스테이크", defaultQty: 2 },
+        ],
+      };
+      setMenuItemsData(testData);
+      setQuantities(
+        testData[menu.name].reduce((acc, item) => {
+          acc[item.name] = item.defaultQty;
+          return acc;
+        }, {})
+      );
+    } else {
+      const fetchData = async () => {
+        try {
+          const [menuRes, stockRes] = await Promise.all([
+            fetch("/api/menu"),
+            fetch("/api/ingredients"),
+          ]);
+
+          const menuData = await menuRes.json();
+          const stockData = await stockRes.json();
+
+          const formattedMenu = menuData.reduce((acc, menuItem) => {
+            acc[menuItem.name] = menuItem.items;
+            return acc;
+          }, {});
+          setMenuItemsData(formattedMenu);
+          setStock(stockData);
+
+          const initialQuantities = formattedMenu[menu.name].reduce(
+            (acc, item) => {
+              const unit =
+                item.name === "와인"
+                  ? wineUnit
+                  : item.name === "샴페인"
+                  ? champagneUnit
+                  : item.name === "커피"
+                  ? coffeeUnit
+                  : "개";
+
+              const conversion = unitConversion[unit] || 1;
+              const availableQty = stockData[item.name]
+                ? Math.floor(stockData[item.name] / conversion)
+                : 0;
+
+              acc[item.name] = Math.min(item.defaultQty, availableQty);
+              return acc;
+            },
+            {}
+          );
+          setQuantities(initialQuantities);
+        } catch (err) {
+          console.error(
+            "메뉴 또는 재고 데이터를 불러오는데 실패했습니다.",
+            err
+          );
+        }
+      };
+      fetchData();
+    }
+  }, [menu.name, wineUnit, champagneUnit, coffeeUnit]);
 
   const allItems = Object.values(menuItemsData).flatMap((items) =>
     items.map((i) => i.name)
@@ -91,6 +142,17 @@ const OrderModal = ({
         testIngredients[item] != null ? testIngredients[item] / conversion : 0;
       maxQty = Math.floor(available);
     } else {
+      const unit =
+        item === "와인"
+          ? wineUnit
+          : item === "샴페인"
+          ? champagneUnit
+          : item === "커피"
+          ? coffeeUnit
+          : "개";
+      const conversion = unitConversion[unit] || 1;
+      const available = stock[item] != null ? stock[item] / conversion : 0;
+      maxQty = Math.floor(available);
     }
 
     setQuantities((prev) => {
