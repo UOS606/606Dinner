@@ -166,7 +166,7 @@ const SignupModal = ({ onClose, onShowLogin }) => {
       const newUserAndCoupon = {
         id: form.username,
         deliveredOrderCount: 0,
-        unusedCouponCount: 0,
+        unusedCouponCount: 1,
         usedCouponCount: 0,
       };
 
@@ -211,7 +211,7 @@ const SignupModal = ({ onClose, onShowLogin }) => {
             body: JSON.stringify({
               id: form.username,
               deliveredOrderCount: 0,
-              unusedCouponCount: 0,
+              unusedCouponCount: 1,
               usedCouponCount: 0, // deliveredOrderCount / 5 =
             }),
           });
