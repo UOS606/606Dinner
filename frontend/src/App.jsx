@@ -44,6 +44,9 @@ function App() {
     if (!localStorage.getItem("test_coupons")) {
       localStorage.setItem("test_coupons", "[]");
     }
+    if (!localStorage.getItem("test_ingredients_orders")) {
+      localStorage.setItem("test_ingredients_orders", "[]");
+    }
   }
 
   const [showLogin, setShowLogin] = useState(false);
