@@ -7,6 +7,7 @@
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
+  overflow-y: scroll;
 }
 
 /* 제목 */
@@ -50,10 +51,10 @@
 
 /* 입력 리스트 */
 .inputList {
-  flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   margin-bottom: 1rem;
   padding-right: 0.5rem;
+  min-height: 50%;
 }
 
 .inputRow {
@@ -66,7 +67,7 @@
   border-radius: 8px;
   background-color: #fff;
   margin-bottom: 0.4rem;
-  height: 6vh;
+  height: 6.7vh;
   box-sizing: border-box;
 }
 
@@ -106,7 +107,12 @@
   font-weight: 600;
   cursor: pointer;
   color: #fff;
+  background-color: #007bff;
   transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.actionBtn:hover {
+  background-color: #0069d9;
+  transform: translateY(-1px);
 }
 
 /* 일반 주문 */
@@ -137,4 +143,60 @@
 .inputList::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 4px;
+}
+
+/* 주문 내역 리스트 */
+.orderList {
+  margin-top: 2rem;
+}
+
+.orderItem {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.orderDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.orderDetailBtn {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: #007bff;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.orderDetailBtn:hover {
+  color: #0056b3;
+}
+
+.applyBtn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.applyBtn:hover {
+  background-color: #218838;
+}
+
+/* 주문 항목 스타일 */
+.orderItemsList {
+  margin-top: 1rem;
+}
+
+.orderItemRow {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
