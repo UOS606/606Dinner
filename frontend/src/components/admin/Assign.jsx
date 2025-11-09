@@ -243,16 +243,16 @@ const Assign = () => {
             },
             body: JSON.stringify({
               id: userId,
-              action: "delivered",
+              action: "add",
+              deliveredOrderCount: 1,
+              /* TODO
+              서버에서 deliveredOrderCount += 1 처리,
+              그 후 deliveredOrderCount % 5 == 0 이라면 
+              쿠폰 1매 발급 (unusedCouponCount += 1)
+              */
             }),
           });
         }
-
-        /* 
-          서버에서 deliveredOrderCount += 1 처리,
-          그 후 deliveredOrderCount % 5 == 0 이라면 
-          쿠폰 1매 발급 (unusedCouponCount += 1)
-        */
       } catch (err) {
         console.error("markComplete API error:", err);
       }

@@ -158,6 +158,21 @@ const Cart = () => {
   const submitOrder = async () => {
     const usedCount = cartItems.filter((o) => o.couponApplied).length;
     const now = new Date().toISOString();
+    const id = localStorage.getItem("username");
+    let selectedAddress = "";
+
+    const useOldAddress = window.confirm(
+      "기본 주소를 배송지로 사용하시겠습니까?"
+    );
+
+    if (!useOldAddress) {
+      // 새로운 배송지 입력받기
+      selectedAddress = window.prompt("새 배송지를 입력해주세요:");
+      if (!selectedAddress) {
+        alert("배송지가 입력되지 않아 주문이 취소되었습니다.");
+        return;
+      }
+    }
 
     if (isForTest) {
       // ---------------- Test 코드 ----------------
@@ -166,12 +181,12 @@ const Cart = () => {
       );
 
       const orderedCount = savedOrders.filter(
-        (o) => o.action === "carted"
+        (o) => o.action === "carted" && o.id === id
       ).length;
 
       const updatedOrders = savedOrders.map((o) => {
         const currentCartItem = cartItems.find(
-          (item) => item.cartedTime === o.cartedTime
+          (item) => item.cartedTime === o.cartedTime && item.id === o.id
         );
 
         if (o.action === "carted" && currentCartItem) {
@@ -180,6 +195,7 @@ const Cart = () => {
             action: "ordered",
             orderedTime: now,
             isCouponUsed: currentCartItem.couponApplied || false,
+            address: useOldAddress ? o.address : selectedAddress,
           };
         }
         return o;
@@ -223,6 +239,7 @@ const Cart = () => {
         const ordersToUpdate = cartItems.map((o) => ({
           cartedTime: o.cartedTime,
           isCouponUsed: o.couponApplied || false,
+          address: useOldAddress ? o.address : selectedAddress,
         }));
 
         const res = await fetch("/api/orders", {
@@ -232,11 +249,8 @@ const Cart = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            actionUpdate: {
-              from: "carted",
-              to: "ordered",
-              orderedTime: now,
-            },
+            action: "ordered",
+            orderedTime: now,
             orders: ordersToUpdate,
           }),
         });

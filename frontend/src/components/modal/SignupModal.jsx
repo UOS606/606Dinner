@@ -350,7 +350,7 @@ const SignupModal = ({ onClose, onShowLogin }) => {
                 />
                 <input
                   name="district"
-                  placeholder="구/군/구"
+                  placeholder="시/군/구"
                   value={form.district}
                   onChange={handleChange}
                 />
