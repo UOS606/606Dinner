@@ -149,13 +149,18 @@ public class OrderService {
     // 장바구니 1건 삭제 (Cart.jsx: DELETE /api/orders)
     @Transactional
     public void deleteCartedOrder(String username, Instant cartedTime) {
-        Order order = orderRepository.findByCustomerUsernameAndCartedTime(username, cartedTime)
+        OffsetDateTime cartedTimeUtc = cartedTime.atOffset(ZoneOffset.UTC);   // ★ 변환
+
+        Order order = orderRepository
+                .findByCustomerUsernameAndCartedTime(username, cartedTimeUtc)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니 없음"));
+
         if (order.getStatus() != OrderStatus.CARTED) {
             throw new IllegalStateException("carted 상태만 삭제 가능");
         }
         orderRepository.delete(order);
     }
+
 
     // 장바구니 → 주문 상태 전환 (Cart.jsx: PUT /api/orders)
     @Transactional
@@ -164,21 +169,25 @@ public class OrderService {
             throw new IllegalArgumentException("지원하지 않는 action");
         }
         for (OrderUpdateRequestDto upd : body.getOrders()) {
-            Order order = orderRepository.findByCustomerUsernameAndCartedTime(username, upd.getCartedTime())
+            OffsetDateTime cartedTimeUtc = upd.getCartedTime().atOffset(ZoneOffset.UTC); // ★ 변환
+
+            Order order = orderRepository
+                    .findByCustomerUsernameAndCartedTime(username, cartedTimeUtc)
                     .orElseThrow(() -> new IllegalArgumentException("장바구니 없음"));
 
-            order.setStatus(OrderStatus.ORDERED);            // 상태 전환
+            order.setStatus(OrderStatus.ORDERED);
             order.setOrderedTime(
                     body.getOrderedTime() != null
-                            ? body.getOrderedTime().atOffset(ZoneOffset.UTC)  // Instant → OffsetDateTime 변환
-                            : OffsetDateTime.now(ZoneOffset.UTC)              // null이면 현재 시각
+                            ? body.getOrderedTime().atOffset(ZoneOffset.UTC)
+                            : OffsetDateTime.now(ZoneOffset.UTC)
             );
 
-            order.setCouponUsed(upd.isCouponUsed());         // 쿠폰 사용 여부
+            order.setCouponUsed(upd.isCouponUsed());
             if (upd.getAddress() != null && !upd.getAddress().isBlank()) {
-                order.setAddress(upd.getAddress());          // 새 배송지 선택 시 반영
+                order.setAddress(upd.getAddress());
             }
         }
+
         // 트랜잭션 종료 시 flush
     }
 
