@@ -48,7 +48,10 @@ public class OrderController {
             return ResponseEntity.status(403).body(Map.of("message", "권한이 없습니다."));
         }
         orderService.deleteCartedOrder(auth.getName(), req.getCartedTime());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "삭제 완료"
+        ));
     }
 
     /**
@@ -58,7 +61,10 @@ public class OrderController {
     @PutMapping
     public ResponseEntity<?> bulk(@RequestBody OrderBulkUpdateRequestDto body, Authentication auth) {
         orderService.markAsOrdered(auth.getName(), body);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "주문 처리 완료"
+        ));
     }
 
     // ---- 요청 바디 DTO (DELETE용) ----
