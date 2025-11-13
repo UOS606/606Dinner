@@ -21,7 +21,7 @@ public class Order {
     private Style style;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable=false)
+    @Column(nullable=false, length = 20)
     private OrderStatus status;
 
     private String menuName; // 기록용
