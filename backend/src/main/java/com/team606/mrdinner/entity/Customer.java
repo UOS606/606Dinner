@@ -36,7 +36,7 @@ public class Customer {
 
     private boolean enabled = true;
 
-    /** ✅ 새로 추가된 필드: 쿠폰 관리용 **/
+    /** 새로 추가된 필드: 쿠폰 관리용 **/
     @Column(nullable = false)
     private int unusedCouponCount = 0; // 사용 가능한 쿠폰 수
 
