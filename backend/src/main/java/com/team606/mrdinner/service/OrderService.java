@@ -10,7 +10,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.time.ZoneOffset;
 import java.util.Locale;
 
 @Service
@@ -26,7 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderResponseDto createOrder(OrderRequestDto req) {
+    public CartOrderResponseDto createOrder(OrderRequestDto req) {
         // 1) JWT로 사용자 식별
         String username = resolveUsernameFromSecurityContext();
         Customer customer = customerRepository.findByUsername(username)
@@ -88,23 +92,10 @@ public class OrderService {
         orderRepository.save(order);
 
         // 7) 응답 DTO
-        return OrderResponseDto.builder()
-                .orderId(order.getId())
-                .status(order.getStatus().name())
-                .customerUsername(customer.getUsername())
-                .menuName(order.getMenuName())
-                .style(style.getCode())
-                .totalPrice(order.getTotalPrice())
-                .lines(order.getItems().stream().map(oi ->
-                        OrderResponseDto.Line.builder()
-                                .itemName(oi.getItem().getName())
-                                .unit(oi.getUnit().getName())
-                                .quantity(oi.getQuantity())
-                                .unitPrice(oi.getUnitPrice())
-                                .linePrice(oi.getLinePrice())
-                                .build()
-                ).toList())
-                .build();
+        if (order.getCartedTime() == null) {
+            order.setCartedTime(OffsetDateTime.now(ZoneOffset.UTC));
+        }
+        return toCartDto(order);
     }
 
     private int applyStyleSurcharge(int subtotal, Style style) {
@@ -142,4 +133,100 @@ public class OrderService {
             throw new IllegalStateException("인증 정보가 없습니다.");
         return auth.getName();
     }
+
+
+
+    // 장바구니 목록 조회 (Cart.jsx: GET /api/orders)
+    @Transactional(readOnly = true)
+    public List<CartOrderResponseDto> getCartedOrders(String username) {
+        return orderRepository.findByCustomerUsernameAndStatus(username, OrderStatus.CARTED)
+                .stream()
+                .sorted(Comparator.comparing(Order::getCartedTime).reversed())
+                .map(this::toCartDto)
+                .toList();
+    }
+
+    // 장바구니 1건 삭제 (Cart.jsx: DELETE /api/orders)
+    @Transactional
+    public void deleteCartedOrder(String username, Instant cartedTime) {
+        Order order = orderRepository.findByCustomerUsernameAndCartedTime(username, cartedTime)
+                .orElseThrow(() -> new IllegalArgumentException("장바구니 없음"));
+        if (order.getStatus() != OrderStatus.CARTED) {
+            throw new IllegalStateException("carted 상태만 삭제 가능");
+        }
+        orderRepository.delete(order);
+    }
+
+    // 장바구니 → 주문 상태 전환 (Cart.jsx: PUT /api/orders)
+    @Transactional
+    public void markAsOrdered(String username, OrderBulkUpdateRequestDto body) {
+        if (!"ordered".equalsIgnoreCase(body.getAction())) {
+            throw new IllegalArgumentException("지원하지 않는 action");
+        }
+        for (OrderUpdateRequestDto upd : body.getOrders()) {
+            Order order = orderRepository.findByCustomerUsernameAndCartedTime(username, upd.getCartedTime())
+                    .orElseThrow(() -> new IllegalArgumentException("장바구니 없음"));
+
+            order.setStatus(OrderStatus.ORDERED);            // 상태 전환
+            order.setOrderedTime(
+                    body.getOrderedTime() != null
+                            ? body.getOrderedTime().atOffset(ZoneOffset.UTC)  // Instant → OffsetDateTime 변환
+                            : OffsetDateTime.now(ZoneOffset.UTC)              // null이면 현재 시각
+            );
+
+            order.setCouponUsed(upd.isCouponUsed());         // 쿠폰 사용 여부
+            if (upd.getAddress() != null && !upd.getAddress().isBlank()) {
+                order.setAddress(upd.getAddress());          // 새 배송지 선택 시 반영
+            }
+        }
+        // 트랜잭션 종료 시 flush
+    }
+
+    // 쿠폰 조회 (Cart.jsx: GET /api/coupons)
+    @Transactional(readOnly = true)
+    public CouponInfoResponseDto getMyCouponInfo(String username) {
+        Customer c = customerRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+        return new CouponInfoResponseDto(c.getUnusedCouponCount(), c.getUsedCouponCount());
+    }
+
+    // ★ 쿠폰 사용 (Cart.jsx: POST /api/coupons)
+    @Transactional
+    public void useCoupons(String username, int usedCount) {
+        if (usedCount <= 0) return;
+        Customer c = customerRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+        if (c.getUnusedCouponCount() < usedCount) {
+            throw new IllegalStateException("쿠폰 부족");
+        }
+        c.setUnusedCouponCount(c.getUnusedCouponCount() - usedCount);
+        c.setUsedCouponCount(c.getUsedCouponCount() + usedCount);
+    }
+
+    // ----- 내부 변환기(엔티티 -> Cart 화면용 DTO) -----
+    private CartOrderResponseDto toCartDto(Order o) {
+        List<OrderItemDto> items = o.getItems().stream()
+                .map(this::toItemDto)
+                .toList();
+
+        return CartOrderResponseDto.builder()
+                .id(o.getCustomer().getUsername())                         // Cart.jsx는 id=username 사용
+                .menuName(o.getMenuName())
+                .style(o.getStyle().getCode())                              // Style이 엔티티면 코드만 주기
+                .items(items)
+                .action(o.getStatus() == OrderStatus.CARTED ? "carted" : "ordered")
+                .cartedTime(o.getCartedTime() == null ? null : o.getCartedTime().toInstant())
+                .address(o.getAddress())
+                .couponApplied(false)                                       // 프론트 토글용(기본 false)
+                .build();
+    }
+
+    private OrderItemDto toItemDto(OrderItem oi) {
+        return OrderItemDto.builder()
+                .name(oi.getItem().getName())
+                .qty(oi.getQuantity())
+                .unit(oi.getUnit().getName())
+                .build();
+    }
+
 }
