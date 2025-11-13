@@ -34,6 +34,15 @@ public class Order {
     @Column(nullable=false)
     private Integer totalPrice;
 
+    /** 새로 추가된 부분: 쿠폰 사용 여부 */
+    @Column(nullable = false)
+    @lombok.Builder.Default
+    private boolean couponUsed = false;
+
+    /** 주문 시점 배송지(기본 주소 또는 입력 주소) */
+    @Column(length = 255)
+    private String address;
+
     @OneToMany(mappedBy="order", cascade=CascadeType.ALL, orphanRemoval=true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
