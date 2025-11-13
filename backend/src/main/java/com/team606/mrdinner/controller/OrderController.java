@@ -3,6 +3,7 @@ package com.team606.mrdinner.controller;
 import com.team606.mrdinner.dto.CartOrderResponseDto;
 import com.team606.mrdinner.dto.OrderBulkUpdateRequestDto;
 import com.team606.mrdinner.dto.OrderRequestDto;
+import com.team606.mrdinner.dto.OrderResponseDto;
 import com.team606.mrdinner.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,16 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<CartOrderResponseDto>> list(Authentication auth) {
         return ResponseEntity.ok(orderService.getCartedOrders(auth.getName()));
+    }
+
+    /**
+     * 주문 내역 조회 (OrderHistory.jsx: GET /api/orders/history)
+     */
+    @GetMapping("/history")
+    public ResponseEntity<List<OrderResponseDto>> getOrderHistory(Authentication authentication) {
+        String username = authentication.getName();
+        List<OrderResponseDto> orders = orderService.getMyOrders(username);
+        return ResponseEntity.ok(orders);
     }
 
     /**
