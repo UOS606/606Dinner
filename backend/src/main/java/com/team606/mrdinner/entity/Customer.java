@@ -35,4 +35,11 @@ public class Customer {
     private String role = "ROLE_USER";
 
     private boolean enabled = true;
+
+    /** ✅ 새로 추가된 필드: 쿠폰 관리용 **/
+    @Column(nullable = false)
+    private int unusedCouponCount = 0; // 사용 가능한 쿠폰 수
+
+    @Column(nullable = false)
+    private int usedCouponCount = 0;   // 이미 사용한 쿠폰 수
 }
