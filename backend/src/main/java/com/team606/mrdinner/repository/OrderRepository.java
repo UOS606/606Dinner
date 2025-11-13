@@ -1,5 +1,6 @@
 package com.team606.mrdinner.repository;
 
+import com.team606.mrdinner.entity.Customer;
 import com.team606.mrdinner.entity.Order;
 import com.team606.mrdinner.entity.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByCustomerUsernameAndStatus(String username, OrderStatus status);
 
     Optional<Order> findByCustomerUsernameAndCartedTime(String username, OffsetDateTime cartedTime);
+    List<Order> findByCustomer(Customer customer);
 }
