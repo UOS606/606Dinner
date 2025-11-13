@@ -6,15 +6,15 @@ import com.team606.mrdinner.entity.enums.OrderStatus;
 import com.team606.mrdinner.entity.enums.SurchargeType;
 import com.team606.mrdinner.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
-import java.time.ZoneOffset;
 import java.util.Locale;
 
 @Service
@@ -28,6 +28,8 @@ public class OrderService {
     private final UnitRepository unitRepository;
     private final ItemUnitPriceRepository itemUnitPriceRepository;
     private final OrderRepository orderRepository;
+
+    // ======================= 주문 생성 (장바구니/바로 주문 공통) =======================
 
     @Transactional
     public CartOrderResponseDto createOrder(OrderRequestDto req) {
@@ -105,7 +107,7 @@ public class OrderService {
                         return subtotal + ss.getValue().intValue();
                     } else {
                         double rate = ss.getValue() / 100.0;
-                        return subtotal + (int)Math.round(subtotal * rate);
+                        return subtotal + (int) Math.round(subtotal * rate);
                     }
                 })
                 .orElse(subtotal);
@@ -134,7 +136,82 @@ public class OrderService {
         return auth.getName();
     }
 
+    // ======================= 주문 내역 조회 (OrderHistory.jsx: GET /api/orders) =======================
 
+    /**
+     * 로그인한 사용자의 전체 주문 내역 조회
+     * - OrderHistory.jsx가 기대하는 형태/정렬 기준에 맞춰 반환한다.
+     */
+    @Transactional(readOnly = true)
+    public List<OrderResponseDto> getMyOrders(String username) {
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다: " + username));
+
+        return orderRepository.findByCustomer(customer).stream()
+                // JS 쪽 정렬: orderedTime 내림차순, 같으면 cartedTime 내림차순
+                .sorted((a, b) -> {
+                    long aOrdered = toEpochMillis(a.getOrderedTime());
+                    long bOrdered = toEpochMillis(b.getOrderedTime());
+                    long aCarted = toEpochMillis(a.getCartedTime());
+                    long bCarted = toEpochMillis(b.getCartedTime());
+
+                    if (bOrdered != aOrdered) {
+                        return Long.compare(bOrdered, aOrdered); // orderedTime desc
+                    }
+                    return Long.compare(bCarted, aCarted);       // cartedTime desc
+                })
+                .map(this::toOrderResponseDto)
+                .toList();
+    }
+
+    private long toEpochMillis(OffsetDateTime time) {
+        if (time == null) return 0L;
+        return time.toInstant().toEpochMilli();
+    }
+
+    private OrderResponseDto toOrderResponseDto(Order o) {
+        // style: "SIMPLE" / "GRAND" / "DELUXE" ... → 그대로 내려도 JS에서 toLowerCase() 해서 씀
+        String styleCode = (o.getStyle() != null && o.getStyle().getCode() != null)
+                ? o.getStyle().getCode()
+                : "DEFAULT";
+
+        String action = toActionString(o.getStatus());
+
+        List<OrderItemDto> items = o.getItems().stream()
+                .map(this::toItemDto)
+                .toList();
+
+        return OrderResponseDto.builder()
+                .id(String.valueOf(o.getId()))
+                .menuName(o.getMenuName())
+                .style(styleCode)
+                .action(action)
+                // 🔽 OffsetDateTime -> LocalDateTime 변환
+                .cartedTime(o.getCartedTime() == null ? null : o.getCartedTime().toLocalDateTime())
+                .orderedTime(o.getOrderedTime() == null ? null : o.getOrderedTime().toLocalDateTime())
+                .cookedTime(o.getCookedTime() == null ? null : o.getCookedTime().toLocalDateTime())
+                .deliveredTime(o.getDeliveredTime() == null ? null : o.getDeliveredTime().toLocalDateTime())
+                .address(o.getAddress())
+                .isCouponUsed(o.isCouponUsed())
+                .items(items)
+                .build();
+    }
+
+
+    private String toActionString(OrderStatus status) {
+        if (status == null) return "checking";
+
+        return switch (status) {
+            case CARTED -> "carted";
+            case RECEIVED, ORDERED -> "ordered";   // 둘 다 프론트에선 '주문 접수'로 보이게
+            case COOKED -> "cooked";
+            case DELIVERED -> "delivered";
+            case CANCELLED -> "cancelled";         // 프론트에서 따로 처리 안 하지만 구분용
+        };
+    }
+
+
+    // ======================= 장바구니 관련 API (Cart.jsx) =======================
 
     // 장바구니 목록 조회 (Cart.jsx: GET /api/orders)
     @Transactional(readOnly = true)
@@ -161,7 +238,6 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
-
     // 장바구니 → 주문 상태 전환 (Cart.jsx: PUT /api/orders)
     @Transactional
     public void markAsOrdered(String username, OrderBulkUpdateRequestDto body) {
@@ -187,9 +263,10 @@ public class OrderService {
                 order.setAddress(upd.getAddress());
             }
         }
-
         // 트랜잭션 종료 시 flush
     }
+
+    // ======================= 쿠폰 관련 API =======================
 
     // 쿠폰 조회 (Cart.jsx: GET /api/coupons)
     @Transactional(readOnly = true)
@@ -199,7 +276,7 @@ public class OrderService {
         return new CouponInfoResponseDto(c.getUnusedCouponCount(), c.getUsedCouponCount());
     }
 
-    // ★ 쿠폰 사용 (Cart.jsx: POST /api/coupons)
+    // 쿠폰 사용 (Cart.jsx: POST /api/coupons)
     @Transactional
     public void useCoupons(String username, int usedCount) {
         if (usedCount <= 0) return;
@@ -212,7 +289,9 @@ public class OrderService {
         c.setUsedCouponCount(c.getUsedCouponCount() + usedCount);
     }
 
-    // ----- 내부 변환기(엔티티 -> Cart 화면용 DTO) -----
+    // ======================= 내부 변환기 =======================
+
+    // Cart 화면용 DTO 변환
     private CartOrderResponseDto toCartDto(Order o) {
         List<OrderItemDto> items = o.getItems().stream()
                 .map(this::toItemDto)
@@ -230,6 +309,7 @@ public class OrderService {
                 .build();
     }
 
+    // 단일 아이템 DTO 변환 (Cart/History 공용)
     private OrderItemDto toItemDto(OrderItem oi) {
         return OrderItemDto.builder()
                 .name(oi.getItem().getName())
@@ -237,5 +317,4 @@ public class OrderService {
                 .unit(oi.getUnit().getName())
                 .build();
     }
-
 }
