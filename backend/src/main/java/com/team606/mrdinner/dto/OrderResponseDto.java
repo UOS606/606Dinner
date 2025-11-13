@@ -1,24 +1,20 @@
 package com.team606.mrdinner.dto;
 
 import lombok.*;
+import java.time.Instant;
 import java.util.List;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderResponseDto {
-    private Long orderId;
-    private String status;
-    private String customerUsername;
+    private String id;              // customerUsername 대체
+    private String action;          // status → "carted"/"ordered"
+    private Instant cartedTime;     // 주문 담은 시각
     private String menuName;
     private String style;
-    private int totalPrice;
-    private List<Line> lines;
-
-    @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-    public static class Line {
-        private String itemName;
-        private String unit;
-        private int quantity;
-        private int unitPrice;
-        private int linePrice;
-    }
+    private String address;         // Cart.jsx 주문 시 prompt에 사용
+    private List<OrderItemDto> items;
 }
