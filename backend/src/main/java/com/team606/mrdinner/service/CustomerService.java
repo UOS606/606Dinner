@@ -37,4 +37,9 @@ public class CustomerService {
 
         return repository.save(customer).getId();
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsByUsername(String username) {
+        return repository.existsByUsername(username);
+    }
 }
