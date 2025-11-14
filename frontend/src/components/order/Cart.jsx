@@ -167,7 +167,7 @@ const Cart = () => {
 
     if (!useOldAddress) {
       // 새로운 배송지 입력받기
-      selectedAddress = window.prompt("새 배송지를 입력해주세요:");
+      selectedAddress = window.prompt("배송지를 입력해주세요:");
       if (!selectedAddress) {
         alert("배송지가 입력되지 않아 주문이 취소되었습니다.");
         return;
