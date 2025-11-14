@@ -25,8 +25,21 @@ const Assign = () => {
               Authorization: `Bearer ${token}`,
             },
           });
-          const data = await res.json(); // 서버에서 { cook: [...], delivery: [...] } 형태로 전달받는다고 가정
-          setStaff(data);
+          const data = await res.json();
+          // API 응답이 유효한 객체인지, 그리고 필수 속성이 배열인지 확인
+          if (
+            data &&
+            Array.isArray(data.cook) &&
+            Array.isArray(data.delivery)
+          ) {
+            setStaff(data);
+          } else {
+            // 유효하지 않은 응답일 경우 초기값으로 설정하여 오류 방지
+            console.warn(
+              "Invalid staff data received from API. Using initial staff."
+            );
+            setStaff({ ...initialStaff });
+          }
         } catch (err) {
           console.error("loadStaff API error:", err);
         }
@@ -259,8 +272,14 @@ const Assign = () => {
     }
   };
 
-  const availableStaff = (type) =>
-    staff[type].filter(([_, info]) => !info.userId);
+  const availableStaff = (type) => {
+    // staff[type]이 존재하고 배열인 경우에만 filter를 호출
+    if (Array.isArray(staff[type])) {
+      return staff[type].filter(([_, info]) => !info.userId);
+    }
+    // staff[type]이 유효하지 않으면 빈 배열을 반환하여 렌더링 오류를 방지
+    return [];
+  };
 
   const getStatusText = (action) => {
     switch (action) {
