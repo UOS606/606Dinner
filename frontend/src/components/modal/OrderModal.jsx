@@ -71,20 +71,24 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
             ? testIngredients[item.name] / conversion
             : 0;
         const availableQty = Math.floor(available); // defaultQty와 availableQty 중 작은 값 (즉, 재고 한도)을 초기 수량으로 설정
-        acc[item.name] = Math.min(item.defaultQty, availableQty);
+
+        const previousQty = quantities[item.name] || 0;
+
+        let newQty;
+        if (Object.keys(quantities).length === 0) {
+          // 최초 로딩 시
+          newQty = Math.min(item.defaultQty, availableQty);
+        } else {
+          // 이미 quantities가 있는 경우 (Add-on 포함): 재고 한도 내에서 기존 수량 유지
+          newQty = Math.min(previousQty, availableQty);
+        }
+
+        acc[item.name] = newQty;
         return acc;
       }, {});
 
       setQuantities((prevQuantities) => {
-        const itemsToKeep = Object.keys(prevQuantities).filter(
-          (item) =>
-            !testData[menu.name].some((menuItem) => menuItem.name === item)
-        );
-        const keptQuantities = itemsToKeep.reduce(
-          (acc, item) => ({ ...acc, [item]: prevQuantities[item] }),
-          {}
-        );
-        return { ...keptQuantities, ...currentMenuQuantities };
+        return { ...prevQuantities, ...currentMenuQuantities };
       });
     } else {
       const fetchData = async () => {
@@ -120,23 +124,26 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
                 ? Math.floor(stockData[item.name] / conversion)
                 : 0;
 
-              acc[item.name] = Math.min(item.defaultQty, availableQty);
+              const previousQty = quantities[item.name] || 0;
+              let newQty;
+
+              if (Object.keys(quantities).length === 0) {
+                // 최초 로딩 시
+                newQty = Math.min(item.defaultQty, availableQty);
+              } else {
+                // 이미 quantities가 있는 경우 (단위 변경 포함): 재고 한도 내에서 기존 수량 유지
+                newQty = Math.min(previousQty, availableQty);
+              }
+
+              acc[item.name] = newQty;
               return acc;
             },
-            {}
-          );
+            {} // 현재 메뉴 항목만 계산
+          ); // 2. 기존 quantities 상태를 기반으로 업데이트 (함수형 업데이트 사용)
+
           setQuantities((prevQuantities) => {
-            const currentMenuItems = formattedMenu[menu.name].map(
-              (item) => item.name
-            );
-            const itemsToKeep = Object.keys(prevQuantities).filter(
-              (item) => !currentMenuItems.includes(item)
-            );
-            const keptQuantities = itemsToKeep.reduce(
-              (acc, item) => ({ ...acc, [item]: prevQuantities[item] }),
-              {}
-            );
-            return { ...keptQuantities, ...currentMenuQuantities };
+            // 기존 수량(추가된 Add-on 포함)을 유지하고, 현재 메뉴 항목만 덮어씀
+            return { ...prevQuantities, ...currentMenuQuantities };
           });
         } catch (err) {
           console.error(
@@ -207,7 +214,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   };
 
   const handleAddItem = (item) => {
-    setQuantities((prev) => ({ ...prev, [item]: 1 }));
+    setQuantities((prev) => ({ ...prev, [item]: 0 }));
     if (item === "와인") setWineUnit("잔");
     if (item === "샴페인") setChampagneUnit("병");
     if (item === "커피") setCoffeeUnit("잔");
