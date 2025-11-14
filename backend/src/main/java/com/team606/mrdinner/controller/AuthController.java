@@ -1,6 +1,7 @@
 package com.team606.mrdinner.controller;
 
 import com.team606.mrdinner.service.AuthService;
+import com.team606.mrdinner.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final CustomerService customerService;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData) {
@@ -41,6 +43,29 @@ public class AuthController {
                                 "message", "아이디 또는 비밀번호가 올바르지 않습니다."
                         ))
                 );
+    }
+
+    @PostMapping("/signup/check-username")
+    public ResponseEntity<Map<String, Object>> checkUsername(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+
+        if (username == null || username.isBlank()) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", "username은 필수입니다."
+                    )
+            );
+        }
+
+        boolean exists = customerService.existsByUsername(username);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "exists", exists
+                )
+        );
     }
 
     @GetMapping("/me")
