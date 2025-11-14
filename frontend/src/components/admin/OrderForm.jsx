@@ -19,7 +19,10 @@ const OrderForm = () => {
         // 실제 API로 주문 내역 가져오기
         fetch("/api/fetch/ingredients_orders")
           .then((res) => res.json())
-          .then((data) => setOrders(data))
+          .then((data) => {
+            // data가 배열인지 확인하고, 아니면 빈 배열로 설정
+            setOrders(Array.isArray(data) ? data : []);
+          })
           .catch((err) => console.error(err));
       }
     };
@@ -157,31 +160,32 @@ const OrderForm = () => {
 
       {/* "applied" 상태는 아예 렌더링하지 않음 */}
       <div className={styles.orderItemsList}>
-        {orders
-          .filter((order) => order.state === "ordered") // "ordered" 상태인 것만 렌더링
-          .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)) // orderDate 기준 내림차순 정렬
-          .map((order, index) => (
-            <div key={index} className={styles.orderItemRow}>
-              <div>
-                <strong>{new Date(order.orderDate).toLocaleString()}</strong>
+        {Array.isArray(orders) &&
+          orders
+            .filter((order) => order.state === "ordered") // "ordered" 상태인 것만 렌더링
+            .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)) // orderDate 기준 내림차순 정렬
+            .map((order, index) => (
+              <div key={index} className={styles.orderItemRow}>
+                <div>
+                  <strong>{new Date(order.orderDate).toLocaleString()}</strong>
+                </div>
+                <div>
+                  {order.orderItems
+                    .filter((item) => item.quantity > 0) // 수량이 0인 항목은 제외
+                    .map((item, idx) => (
+                      <div key={idx}>
+                        {item.item}: {item.quantity}
+                      </div>
+                    ))}
+                </div>
+                <button
+                  className={styles.applyBtn}
+                  onClick={() => handleApplyStock(order)}
+                >
+                  재고 반영
+                </button>
               </div>
-              <div>
-                {order.orderItems
-                  .filter((item) => item.quantity > 0) // 수량이 0인 항목은 제외
-                  .map((item, idx) => (
-                    <div key={idx}>
-                      {item.item}: {item.quantity}
-                    </div>
-                  ))}
-              </div>
-              <button
-                className={styles.applyBtn}
-                onClick={() => handleApplyStock(order)}
-              >
-                재고 반영
-              </button>
-            </div>
-          ))}
+            ))}
       </div>
     </div>
   );

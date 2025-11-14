@@ -90,10 +90,10 @@ const SignupModal = ({ onClose, onShowLogin }) => {
       }
     } else {
       try {
-        const res = await fetch("/api/signup", {
+        const res = await fetch("/api/signup/check-username", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: form.username, checkOnly: true }),
+          body: JSON.stringify({ username: form.username }),
         });
 
         const data = await res.json();
