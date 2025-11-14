@@ -77,7 +77,7 @@ const OrderForm = () => {
         .catch((err) => console.error(err));
     }
 
-    setQuantities({ ...defaultStock }); // 수량 초기화
+    setQuantities({ ...0 }); // 수량 초기화
   };
 
   // 재고 반영 처리
@@ -132,7 +132,7 @@ const OrderForm = () => {
         })
         .catch((err) => console.error(err));
     }
-    window.location.reload();
+    alert("다음 갱신 때 자동으로 반영됩니다.");
   };
 
   return (

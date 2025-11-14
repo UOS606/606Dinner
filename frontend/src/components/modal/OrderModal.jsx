@@ -50,12 +50,42 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
         ],
       };
       setMenuItemsData(testData);
-      setQuantities(
-        testData[menu.name].reduce((acc, item) => {
-          acc[item.name] = item.defaultQty;
-          return acc;
-        }, {})
+
+      const testIngredients = JSON.parse(
+        localStorage.getItem("test_ingredients") || "{}"
       );
+
+      const currentMenuQuantities = testData[menu.name].reduce((acc, item) => {
+        // [수정된 로직] 재고 계산 로직을 추가하여 defaultQty가 아닌 실제 최대 수량을 반영
+        const unit =
+          item.name === "와인"
+            ? wineUnit
+            : item.name === "샴페인"
+            ? champagneUnit
+            : item.name === "커피"
+            ? coffeeUnit
+            : "개";
+        const conversion = unitConversion[unit] || 1;
+        const available =
+          testIngredients[item.name] != null
+            ? testIngredients[item.name] / conversion
+            : 0;
+        const availableQty = Math.floor(available); // defaultQty와 availableQty 중 작은 값 (즉, 재고 한도)을 초기 수량으로 설정
+        acc[item.name] = Math.min(item.defaultQty, availableQty);
+        return acc;
+      }, {});
+
+      setQuantities((prevQuantities) => {
+        const itemsToKeep = Object.keys(prevQuantities).filter(
+          (item) =>
+            !testData[menu.name].some((menuItem) => menuItem.name === item)
+        );
+        const keptQuantities = itemsToKeep.reduce(
+          (acc, item) => ({ ...acc, [item]: prevQuantities[item] }),
+          {}
+        );
+        return { ...keptQuantities, ...currentMenuQuantities };
+      });
     } else {
       const fetchData = async () => {
         try {
@@ -74,7 +104,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
           setMenuItemsData(formattedMenu);
           setStock(stockData);
 
-          const initialQuantities = formattedMenu[menu.name].reduce(
+          const currentMenuQuantities = formattedMenu[menu.name].reduce(
             (acc, item) => {
               const unit =
                 item.name === "와인"
@@ -95,7 +125,19 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
             },
             {}
           );
-          setQuantities(initialQuantities);
+          setQuantities((prevQuantities) => {
+            const currentMenuItems = formattedMenu[menu.name].map(
+              (item) => item.name
+            );
+            const itemsToKeep = Object.keys(prevQuantities).filter(
+              (item) => !currentMenuItems.includes(item)
+            );
+            const keptQuantities = itemsToKeep.reduce(
+              (acc, item) => ({ ...acc, [item]: prevQuantities[item] }),
+              {}
+            );
+            return { ...keptQuantities, ...currentMenuQuantities };
+          });
         } catch (err) {
           console.error(
             "메뉴 또는 재고 데이터를 불러오는데 실패했습니다.",
@@ -177,6 +219,18 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const handleOrder = async (action) => {
     if (isLoggedIn && !selectedStyle) {
       alert("서빙 스타일을 선택해주세요!");
+      return;
+    }
+
+    const totalQuantity = Object.values(quantities).reduce(
+      (sum, qty) => sum + qty,
+      0
+    );
+
+    if (totalQuantity === 0) {
+      alert(
+        "선택하신 재료가 없습니다. 적어도 재료 하나의 수량을 1개 이상으로 설정해주세요."
+      );
       return;
     }
 
