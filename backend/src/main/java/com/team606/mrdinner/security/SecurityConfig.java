@@ -43,7 +43,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/signup", "/api/signup/check-username").permitAll()
                         .anyRequest().authenticated()
                 )
                 // DaoAuthenticationProvider 등록
