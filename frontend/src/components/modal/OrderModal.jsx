@@ -50,12 +50,46 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
         ],
       };
       setMenuItemsData(testData);
-      setQuantities(
-        testData[menu.name].reduce((acc, item) => {
-          acc[item.name] = item.defaultQty;
-          return acc;
-        }, {})
+
+      const testIngredients = JSON.parse(
+        localStorage.getItem("test_ingredients") || "{}"
       );
+
+      const currentMenuQuantities = testData[menu.name].reduce((acc, item) => {
+        // [수정된 로직] 재고 계산 로직을 추가하여 defaultQty가 아닌 실제 최대 수량을 반영
+        const unit =
+          item.name === "와인"
+            ? wineUnit
+            : item.name === "샴페인"
+            ? champagneUnit
+            : item.name === "커피"
+            ? coffeeUnit
+            : "개";
+        const conversion = unitConversion[unit] || 1;
+        const available =
+          testIngredients[item.name] != null
+            ? testIngredients[item.name] / conversion
+            : 0;
+        const availableQty = Math.floor(available); // defaultQty와 availableQty 중 작은 값 (즉, 재고 한도)을 초기 수량으로 설정
+
+        const previousQty = quantities[item.name] || 0;
+
+        let newQty;
+        if (Object.keys(quantities).length === 0) {
+          // 최초 로딩 시
+          newQty = Math.min(item.defaultQty, availableQty);
+        } else {
+          // 이미 quantities가 있는 경우 (Add-on 포함): 재고 한도 내에서 기존 수량 유지
+          newQty = Math.min(previousQty, availableQty);
+        }
+
+        acc[item.name] = newQty;
+        return acc;
+      }, {});
+
+      setQuantities((prevQuantities) => {
+        return { ...prevQuantities, ...currentMenuQuantities };
+      });
     } else {
       const fetchData = async () => {
         try {
@@ -74,7 +108,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
           setMenuItemsData(formattedMenu);
           setStock(stockData);
 
-          const initialQuantities = formattedMenu[menu.name].reduce(
+          const currentMenuQuantities = formattedMenu[menu.name].reduce(
             (acc, item) => {
               const unit =
                 item.name === "와인"
@@ -90,12 +124,27 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
                 ? Math.floor(stockData[item.name] / conversion)
                 : 0;
 
-              acc[item.name] = Math.min(item.defaultQty, availableQty);
+              const previousQty = quantities[item.name] || 0;
+              let newQty;
+
+              if (Object.keys(quantities).length === 0) {
+                // 최초 로딩 시
+                newQty = Math.min(item.defaultQty, availableQty);
+              } else {
+                // 이미 quantities가 있는 경우 (단위 변경 포함): 재고 한도 내에서 기존 수량 유지
+                newQty = Math.min(previousQty, availableQty);
+              }
+
+              acc[item.name] = newQty;
               return acc;
             },
-            {}
-          );
-          setQuantities(initialQuantities);
+            {} // 현재 메뉴 항목만 계산
+          ); // 2. 기존 quantities 상태를 기반으로 업데이트 (함수형 업데이트 사용)
+
+          setQuantities((prevQuantities) => {
+            // 기존 수량(추가된 Add-on 포함)을 유지하고, 현재 메뉴 항목만 덮어씀
+            return { ...prevQuantities, ...currentMenuQuantities };
+          });
         } catch (err) {
           console.error(
             "메뉴 또는 재고 데이터를 불러오는데 실패했습니다.",
@@ -165,7 +214,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   };
 
   const handleAddItem = (item) => {
-    setQuantities((prev) => ({ ...prev, [item]: 1 }));
+    setQuantities((prev) => ({ ...prev, [item]: 0 }));
     if (item === "와인") setWineUnit("잔");
     if (item === "샴페인") setChampagneUnit("병");
     if (item === "커피") setCoffeeUnit("잔");
@@ -177,6 +226,18 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const handleOrder = async (action) => {
     if (isLoggedIn && !selectedStyle) {
       alert("서빙 스타일을 선택해주세요!");
+      return;
+    }
+
+    const totalQuantity = Object.values(quantities).reduce(
+      (sum, qty) => sum + qty,
+      0
+    );
+
+    if (totalQuantity === 0) {
+      alert(
+        "선택하신 재료가 없습니다. 적어도 재료 하나의 수량을 1개 이상으로 설정해주세요."
+      );
       return;
     }
 

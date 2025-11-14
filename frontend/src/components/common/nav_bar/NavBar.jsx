@@ -1,5 +1,5 @@
 // src/components/NavBar.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./NavBar.module.css";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -17,10 +17,10 @@ const NavBar = ({
   const [couponCount, setCouponCount] = useState(null);
   const navigate = useNavigate();
   const MAX = 15;
-  let isRecognitionActive = false; // 음성 인식 상태를 추적하는 변수
-  let count = 0;
 
-  let user = "";
+  const countRef = useRef(0);
+  const recognitionActiveRef = useRef(false);
+  const userRef = useRef("");
 
   useEffect(() => {
     const fetchCouponStatus = async (userId) => {
@@ -73,7 +73,7 @@ const NavBar = ({
       );
 
       if (matchedUser) {
-        user = matchedUser.name; // 실명
+        userRef.current = matchedUser.name;
       } else {
         console.error("사용자를 찾을 수 없습니다.");
       }
@@ -97,7 +97,7 @@ const NavBar = ({
 
         if (res.ok) {
           const data = await res.json();
-          user = data.name; // 실명
+          userRef.current = data.name;
         } else {
           console.error("사용자 정보를 불러올 수 없습니다.");
         }
@@ -116,6 +116,16 @@ const NavBar = ({
       return;
     }
 
+    if (recognitionActiveRef.current) {
+      console.log("음성 인식이 이미 활성화되어 있습니다.");
+      return;
+    }
+
+    if (countRef.current >= MAX) {
+      countRef.current = 0;
+      console.log("최대 횟수 도달, 카운트 리셋 후 재시작");
+    }
+
     const recognition = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition)();
     recognition.lang = "ko-KR"; // 한국어로 음성 인식
@@ -124,14 +134,35 @@ const NavBar = ({
     recognition.continuous = true;
     recognition.timeout = 10000;
 
+    const speak = (text) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "ko-KR"; // 한국어로 음성 출력
+      utterance.rate = 1.5;
+      utterance.pitch = 2.0;
+
+      // 음성 합성 중 음성 인식 멈추기
+      if (recognitionActiveRef.current) {
+        recognition.stop();
+        recognitionActiveRef.current = false; // Ref 업데이트
+      }
+
+      window.speechSynthesis.speak(utterance);
+    };
+
     recognition.onstart = () => {
       console.log("음성 인식이 시작되었습니다...");
-      if (count === 0) {
-        getUserRealName();
-        speak(`안녕하세요, ${user} 고객님, 어떤 디너를 주문하시겠습니까?`);
+      recognitionActiveRef.current = true;
+      if (countRef.current === 0) {
+        getUserRealName().then(() => {
+          // 지역 변수 user 대신 Ref 사용
+          speak(
+            `안녕하세요, ${
+              userRef.current || "고객"
+            } 고객님, 어떤 디너를 주문하시겠습니까?`
+          );
+        });
       }
-      count++;
-      isRecognitionActive = true;
+      countRef.current++;
     };
 
     recognition.onresult = (event) => {
@@ -166,34 +197,19 @@ const NavBar = ({
     };
 
     recognition.onend = () => {
-      isRecognitionActive = false;
-      if (count < MAX) recognition.start();
+      recognitionActiveRef.current = false;
+      if (countRef.current < MAX) {
+        recognition.start();
+      } else {
+        countRef.current = 0; // Ref 업데이트
+      }
       console.log("음성 인식이 종료되었습니다.");
     };
 
     // 음성 합성 시작 시 음성 인식 일시 중지
-    const speak = (text) => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "ko-KR"; // 한국어로 음성 출력
-      utterance.rate = 1.5;
-      utterance.pitch = 2.0;
-
-      // 음성 합성 중 음성 인식 멈추기
-      if (isRecognitionActive) {
-        recognition.stop();
-        isRecognitionActive = false; // 음성 인식 중지 상태로 업데이트
-      }
-
-      // 음성 합성 종료 후 음성 인식 재개
-      utterance.onend = () => {
-        isRecognitionActive = true;
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
 
     // 음성 인식 시작
-    if (!isRecognitionActive) {
+    if (!recognitionActiveRef.current) {
       recognition.start();
     }
   };
