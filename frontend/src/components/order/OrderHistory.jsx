@@ -53,7 +53,7 @@ const OrderHistory = () => {
 
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("/api/orders", {
+        const res = await fetch("/api/orders/history", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

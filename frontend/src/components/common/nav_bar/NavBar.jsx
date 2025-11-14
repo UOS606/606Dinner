@@ -251,6 +251,7 @@ const NavBar = ({
         {isLoggedIn ? (
           <>
             {username !== "admin" && (
+              <>
                 <span className={styles.couponInfo}>
                   {couponCount === null ? (
                     "쿠폰 정보를 불러오는 중..."
@@ -260,11 +261,11 @@ const NavBar = ({
                     </>
                   )}
                 </span>
-              ) && (
                 <button onClick={handleVoice} className={styles.signupBtn}>
                   음성인식
                 </button>
-              )}
+              </>
+            )}
 
             <button onClick={handleLogout} className={styles.loginBtn}>
               로그아웃

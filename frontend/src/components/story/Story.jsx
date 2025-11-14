@@ -18,13 +18,19 @@ const Story = () => {
 
   return (
     <main className={styles.mainBanner}>
+      <div className={styles.leftImage}>
+        <img src="/images/story.png" alt="advertisement" />
+      </div>
+      <div className={styles.rightImage}>
+        <img src="/images/dinner/french/deluxe.png" alt="advertisement" />
+      </div>
       <div className={styles.overlay}>
         <h1 className={styles.slogan}>
           {lines.map((line, index) => (
             <span
               key={index}
               className={styles.fadeLine}
-              style={{ animationDelay: `${index * 1.2}s` }} // 1.5초 간격
+              style={{ animationDelay: `${index * 1.15}s` }} // 1.5초 간격
             >
               {line}
             </span>
