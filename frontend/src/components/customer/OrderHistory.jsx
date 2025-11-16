@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import common from "./OrderCommon.module.css";
-import styles from "./OrderHistory.module.css";
-import { calculateTotalPrice } from "../common/Info";
+import common from "../../styles/OrderCommon.module.css";
+import styles from "../../styles/OrderHistory.module.css";
+import { calculateTotalPrice } from "../../utils/Info";
 import { isForTest } from "../../App";
 import { useNavigate } from "react-router-dom";
 

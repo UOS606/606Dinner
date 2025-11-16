@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./LoginModal.module.css";
+import styles from "../../styles/LoginForm.module.css";
 import { isForTest } from "../../App";
 
 const LoginModal = ({

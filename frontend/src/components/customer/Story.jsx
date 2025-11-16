@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Story.module.css";
+import styles from "../../styles/Story.module.css";
 import { useNavigate } from "react-router-dom";
 
 const Story = () => {
