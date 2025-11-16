@@ -1,9 +1,9 @@
 // src/components/NavBar.jsx
 import { useState, useEffect, useRef } from "react";
-import styles from "./NavBar.module.css";
+import styles from "../../styles/NavBar.module.css";
 import { Link, useNavigate } from "react-router-dom";
 
-import { isForTest } from "../../../App";
+import { isForTest } from "../../App";
 
 const NavBar = ({
   onLoginClick,

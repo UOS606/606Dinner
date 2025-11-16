@@ -1,8 +1,8 @@
 // StockStatus.jsx
 import { useEffect, useState } from "react";
-import { ingredients } from "../common/Info"; // 재고 항목 정보
+import { ingredients } from "../../utils/Info"; // 재고 항목 정보
 import { isForTest } from "../../App";
-import styles from "./StockStatus.module.css";
+import styles from "../../styles/InventoryStatus.module.css";
 
 const StockStatus = () => {
   const [quantities, setQuantities] = useState({});

@@ -1,8 +1,8 @@
 // AdminDashboard.jsx
-import StockStatus from "./StockStatus";
-import OrderForm from "./OrderForm";
-import styles from "./AdminDashboard.module.css";
-import Assign from "./Assign";
+import StockStatus from "./InventoryStatus";
+import OrderForm from "./IngredientsOrder";
+import styles from "../../styles/AdminDashboard.module.css";
+import Assign from "./StaffAssignment";
 
 const AdminDashboard = () => {
   return (

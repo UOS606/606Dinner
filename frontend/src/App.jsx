@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import Home from "./components/home/Home"; // 추가
-import NavBar from "./components/common/nav_bar/NavBar";
-import LoginModal from "./components/modal/LoginModal";
-import SignupModal from "./components/modal/SignupModal"; // 새로 만드셔야 함
-import Story from "./components/story/Story"; // 새로 만든 컴포넌트 불러오기
-import Menu from "./components/menu/Menu"; // 추가
-import Cart from "./components/order/Cart";
-import ProtectedRoute from "./components/common/ProtectedRoute";
-import OrderHistory from "./components/order/OrderHistory";
+import Home from "./components/customer/Home"; // 추가
+import NavBar from "./components/common/NavBar";
+import LoginModal from "./components/form/LoginForm";
+import SignupModal from "./components/form/SignupForm"; // 새로 만드셔야 함
+import Story from "./components/customer/Story"; // 새로 만든 컴포넌트 불러오기
+import Menu from "./components/customer/Menu"; // 추가
+import Cart from "./components/customer/Cart";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import OrderHistory from "./components/customer/OrderHistory";
 import AdminDashboard from "./components/admin/AdminDashboard";
 
-import { defaultStock, staff } from "./components/common/Info";
+import { defaultStock, staff } from "./utils/Info";
 
 export const isForTest = true; // true for test, false for deploy
 

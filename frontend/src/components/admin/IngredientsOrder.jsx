@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { ingredients, defaultStock } from "../common/Info";
+import { ingredients } from "../../utils/Info";
 import { isForTest } from "../../App";
-import styles from "./OrderForm.module.css";
+import styles from "../../styles/IngredientsOrder.module.css";
 
 const OrderForm = () => {
   const [quantities, setQuantities] = useState({}); // 수량

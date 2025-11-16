@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import styles from "./Assign.module.css";
+import styles from "../../styles/StaffAssignment.module.css";
 import { isForTest } from "../../App";
-import { staff as initialStaff, unitConversion } from "../common/Info";
+import { staff as initialStaff, unitConversion } from "../../utils/Info";
 
 const Assign = () => {
   const [orders, setOrders] = useState([]);

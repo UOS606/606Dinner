@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import OrderModal from "../modal/OrderModal";
-import LoginModal from "../modal/LoginModal"; // 로그인 모달
-import styles from "./Menu.module.css";
+import OrderModal from "../form/OrderForm";
+import LoginModal from "../form/LoginForm"; // 로그인 모달
+import styles from "../../styles/Menu.module.css";
 import { useNavigate } from "react-router-dom";
 
 const menus = [

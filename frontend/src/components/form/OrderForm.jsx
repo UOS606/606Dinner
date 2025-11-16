@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import styles from "./OrderModal.module.css";
-import { calculateTotalPrice } from "../common/Info";
+import styles from "../../styles/OrderForm.module.css";
+import { calculateTotalPrice } from "../../utils/Info";
 import { isForTest } from "../../App";
-import { unitConversion } from "../common/Info";
+import { unitConversion } from "../../utils/Info";
 
 const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const stylesList = ["simple", "grand", "deluxe"];
