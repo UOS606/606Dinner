@@ -18,9 +18,13 @@ const NavBar = ({
   const navigate = useNavigate();
   const MAX = 15;
 
+  const TTS_TIME = 0;
+  const USER_TIME = 5000;
+
   const countRef = useRef(0);
   const recognitionActiveRef = useRef(false);
-  const userRef = useRef("");
+  const userRef = useRef(null);
+  let currentStream = null;
 
   useEffect(() => {
     const fetchCouponStatus = async (userId) => {
@@ -107,11 +111,10 @@ const NavBar = ({
     }
   };
 
+  // #TODO
+
   const handleVoice = () => {
-    if (
-      !("SpeechRecognition" in window) &&
-      !("webkitSpeechRecognition" in window)
-    ) {
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
       alert("이 브라우저는 음성 인식 기능을 지원하지 않습니다.");
       return;
     }
@@ -121,98 +124,183 @@ const NavBar = ({
       return;
     }
 
-    if (countRef.current >= MAX) {
-      countRef.current = 0;
-      console.log("최대 횟수 도달, 카운트 리셋 후 재시작");
-    }
-
-    const recognition = new (window.SpeechRecognition ||
-      window.webkitSpeechRecognition)();
-    recognition.lang = "ko-KR"; // 한국어로 음성 인식
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 3;
-    recognition.continuous = true;
-    recognition.timeout = 10000;
-
-    const speak = (text) => {
+    const speak = (text, onEndCallback = () => {}) => {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "ko-KR"; // 한국어로 음성 출력
       utterance.rate = 1.5;
       utterance.pitch = 2.0;
 
-      // 음성 합성 중 음성 인식 멈추기
-      if (recognitionActiveRef.current) {
-        recognition.stop();
-        recognitionActiveRef.current = false; // Ref 업데이트
-      }
+      utterance.onend = onEndCallback;
+      // 오류 발생 시에도 다음 로직 진행
+      utterance.onerror = onEndCallback;
 
       window.speechSynthesis.speak(utterance);
     };
 
-    recognition.onstart = () => {
-      console.log("음성 인식이 시작되었습니다...");
+    const startRecordingCycle = () => {
+      if (countRef.current >= MAX) {
+        console.log("최대 반복 횟수에 도달하여 녹음을 종료합니다.");
+        countRef.current = 0;
+        return;
+      }
+
+      if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
+        currentStream = null;
+      }
+
       recognitionActiveRef.current = true;
-      if (countRef.current === 0) {
-        getUserRealName().then(() => {
-          // 지역 변수 user 대신 Ref 사용
-          speak(
-            `안녕하세요, ${
-              userRef.current || "고객"
-            } 고객님, 어떤 디너를 주문하시겠습니까?`
-          );
+
+      const recordedChunks = []; // 녹음된 데이터 조각을 저장할 배열
+      let mediaRecorder;
+
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          currentStream = stream;
+          mediaRecorder = new MediaRecorder(stream, {
+            mimeType: "audio/webm; codecs=opus",
+          });
+
+          // 데이터 조각이 있을 때마다 배열에 추가
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              recordedChunks.push(event.data);
+            }
+          };
+
+          mediaRecorder.onstop = () => {
+            recognitionActiveRef.current = false;
+            console.log(
+              `녹음#${countRef.current}이 종료되었습니다. 파일 전송을 시작합니다.`
+            );
+
+            // recordedChunks의 Blob들을 합쳐 하나의 Blob 파일 생성
+            const audioBlob = new Blob(recordedChunks, { type: "audio/webm" });
+
+            // 백엔드 전송 함수 호출
+            if (isForTest) {
+              const testResponseText =
+                countRef.current > MAX ? "" : "처리가 완료되었습니다.";
+              speak(testResponseText, () => {
+                setTimeout(startRecordingCycle, TTS_TIME);
+              });
+            } else {
+              uploadAudioFile(audioBlob)
+                .then((response) => {
+                  // 백엔드 응답을 기반으로 '그만' 명령이 있었는지 확인
+                  const shouldStop = response.stop_command || false;
+
+                  const responseText =
+                    response.response_text ||
+                    "죄송합니다. 이해하지 못했습니다. 다시 말씀해 주세요.";
+
+                  if (shouldStop) {
+                    console.log("백엔드로부터 종료 명령을 받았습니다.");
+
+                    speak(responseText, () => {
+                      if (currentStream) {
+                        currentStream
+                          .getTracks()
+                          .forEach((track) => track.stop());
+                        currentStream = null;
+                      }
+                      countRef.current = 0;
+                    });
+                  } else {
+                    speak(responseText, () => {
+                      setTimeout(startRecordingCycle, TTS_TIME);
+                    });
+                  }
+                })
+                .catch((error) => {
+                  console.error("전송/응답 처리 오류:", error);
+                  speak(
+                    "서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+                  );
+                  setTimeout(startRecordingCycle, TTS_TIME);
+                });
+            }
+          };
+
+          if (countRef.current === 0) {
+            getUserRealName().then(() => {
+              const initialGreeting = `안녕하세요, ${
+                userRef.current || "고객"
+              } 고객님, 어떤 디너를 주문하시겠습니까?`;
+
+              speak();
+              // TTS가 끝난 후 녹음 시작
+              speak(
+                initialGreeting,
+                () => {
+                  mediaRecorder.start();
+                  recognitionActiveRef.current = true;
+                  console.log(`녹음 #${countRef.current + 1} 시작...`);
+                  countRef.current++;
+
+                  setTimeout(() => {
+                    if (mediaRecorder.state !== "inactive") {
+                      mediaRecorder.stop();
+                    }
+                  }, USER_TIME);
+                },
+                TTS_TIME
+              ); // TTS 발화 후 1.5초 딜레이
+            });
+          } else {
+            // 반복 녹음의 경우 바로 시작
+            mediaRecorder.start();
+            recognitionActiveRef.current = true;
+            console.log(`녹음 #${countRef.current + 1} 시작...`);
+            countRef.current++;
+
+            // 최소 녹음 시간 설정 (예: 3초)
+            setTimeout(() => {
+              if (mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+              }
+            }, USER_TIME);
+          }
+        })
+        .catch((error) => {
+          console.error("마이크 접근 중 오류 발생:", error);
+          alert("마이크 접근 권한이 거부되었거나 오류가 발생했습니다.");
+          recognitionActiveRef.current = false;
+          if (currentStream) {
+            currentStream.getTracks().forEach((track) => track.stop());
+          }
         });
-      }
-      countRef.current++;
     };
 
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      console.log("인식된 텍스트:", transcript);
-
-      /* #TODO AI입갤예정
-
-      const recognitionResult = {
-        transcript: transcript,
-      };
-
-      fetch("#TODO", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(recognitionResult),
-      })
-        .then((response) => response.json())
-        .then((data) => console.log("서버 응답:", data))
-        .catch((error) => console.error("전송 오류:", error));
-
-      */
-    };
-
-    recognition.onerror = (event) => {
-      console.error("음성 인식 중 오류 발생:", event.error);
-    };
-
-    recognition.onend = () => {
-      recognitionActiveRef.current = false;
-      if (countRef.current < MAX) {
-        recognition.start();
-      } else {
-        countRef.current = 0; // Ref 업데이트
-      }
-      console.log("음성 인식이 종료되었습니다.");
-    };
-
-    // 음성 합성 시작 시 음성 인식 일시 중지
-
-    // 음성 인식 시작
-    if (!recognitionActiveRef.current) {
-      recognition.start();
-    }
+    startRecordingCycle();
   };
+
+  const uploadAudioFile = (audioBlob) => {
+    // FormData를 사용하여 Blob 데이터를 파일 형태로 포장
+    const formData = new FormData();
+    // 'file'은 백엔드에서 파일을 받을 때 사용할 키 이름입니다.
+    formData.append("file", audioBlob, `recording-${Date.now()}.webm`);
+
+    // Fetch API를 사용하여 백엔드로 전송
+    fetch("/api/voice-record", {
+      // <-- 실제 백엔드 엔드포인트로 변경하세요
+      method: "POST",
+      // FormData를 사용할 경우, Content-Type 헤더를 명시적으로 설정하지 않아도 됩니다.
+      // 브라우저가 자동으로 multipart/form-data와 경계를 설정합니다.
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => console.log("서버 응답:", data))
+      .catch((error) => console.error("음성 파일 전송 오류:", error));
+  };
+
+  // #TODO
 
   const handleProtectedClick = (path) => {
     if (!isLoggedIn) {
