@@ -283,7 +283,7 @@ const NavBar = ({
     formData.append("file", audioBlob, `recording-${Date.now()}.webm`);
 
     // Fetch API를 사용하여 백엔드로 전송
-    fetch("api/voice-recognition", {
+    fetch("/api/voice-record", {
       // <-- 실제 백엔드 엔드포인트로 변경하세요
       method: "POST",
       // FormData를 사용할 경우, Content-Type 헤더를 명시적으로 설정하지 않아도 됩니다.
