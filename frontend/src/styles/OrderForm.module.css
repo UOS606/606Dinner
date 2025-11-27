@@ -222,3 +222,22 @@
 .orderBtns button:hover {
   background-color: #f0f0f0;
 }
+.loadingMessage {
+  /* 중앙 정렬을 위한 설정 */
+  text-align: center;
+  padding: 30px 20px; /* 상하 여백을 충분히 주어 눈에 잘 띄게 함 */
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #555; /* 부드러운 회색 톤 */
+
+  /* (선택 사항) 로딩 중임을 시각적으로 강조 */
+  /* border: 1px solid #ddd; */
+  /* border-radius: 8px; */
+  /* background-color: #f9f9f9; */
+
+  /* 모달 내에서 다른 요소와의 레이아웃을 위해 필요한 경우 높이 설정 */
+  min-height: 150px;
+  display: flex;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+}
