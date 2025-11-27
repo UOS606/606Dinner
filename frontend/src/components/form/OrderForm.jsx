@@ -7,6 +7,8 @@ import { unitConversion } from "../../utils/Info";
 const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const stylesList = ["simple", "grand", "deluxe"];
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const [selectedStyle, setSelectedStyle] = useState("");
 
   const [menuItemsData, setMenuItemsData] = useState({});
@@ -90,6 +92,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
       setQuantities((prevQuantities) => {
         return { ...prevQuantities, ...currentMenuQuantities };
       });
+      setIsLoading(false);
     } else {
       const fetchData = async () => {
         try {
@@ -150,6 +153,9 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
             "메뉴 또는 재고 데이터를 불러오는데 실패했습니다.",
             err
           );
+        } finally {
+          // Promise가 성공하든 실패하든 무조건 실행됩니다.
+          setIsLoading(false); // 👈 로딩 종료
         }
       };
       fetchData();
@@ -335,6 +341,14 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className={styles.modal}>
+        <p>메뉴 항목을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -342,145 +356,159 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
           ×
         </button>
         <h2 className={styles.title}>{menu.name}</h2>
-        <img src={imgSrc} alt={menu.name} className={styles.image} />
 
-        {/* 서빙 스타일 선택 */}
-        <div className={styles.styleRow}>
-          <span>서빙 스타일</span>
-          <div className={styles.styleBtnWrapper}>
-            {stylesList.map((style) => (
-              <button
-                key={style}
-                className={`${styles.styleBtn} ${
-                  selectedStyle === style ? styles.activeStyle : ""
-                }`}
-                onClick={() => setSelectedStyle(style)}
-              >
-                {style.charAt(0).toUpperCase() + style.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
+        {isLoading ? (
+          <p className={styles.loadingMessage}>
+            메뉴 정보를 불러오는 중입니다...
+          </p>
+        ) : (
+          <>
+            <img src={imgSrc} alt={menu.name} className={styles.image} />
 
-        {/* 수량 및 단위 */}
-        <div className={styles.quantitySection}>
-          {Object.keys(quantities).map((item) => (
-            <div key={item} className={styles.quantityRow}>
-              <span className={styles.itemName}>{item}</span>
-              <div className={styles.qtyControls}>
-                {(item === "와인" || item === "샴페인" || item === "커피") && (
-                  <div className={styles.unitSelect}>
-                    {item === "와인" && (
-                      <>
-                        <button
-                          className={`${styles.unitBtn} ${
-                            wineUnit === "잔" ? styles.activeUnit : ""
-                          }`}
-                          onClick={() => setWineUnit("잔")}
-                        >
-                          잔
-                        </button>
-                        <button
-                          className={`${styles.unitBtn} ${
-                            wineUnit === "병" ? styles.activeUnit : ""
-                          }`}
-                          onClick={() => setWineUnit("병")}
-                        >
-                          병
-                        </button>
-                      </>
-                    )}
-                    {item === "샴페인" && (
-                      <>
-                        <button
-                          className={`${styles.unitBtn} ${
-                            champagneUnit === "잔" ? styles.activeUnit : ""
-                          }`}
-                          onClick={() => setChampagneUnit("잔")}
-                        >
-                          잔
-                        </button>
-                        <button
-                          className={`${styles.unitBtn} ${
-                            champagneUnit === "병" ? styles.activeUnit : ""
-                          }`}
-                          onClick={() => setChampagneUnit("병")}
-                        >
-                          병
-                        </button>
-                      </>
-                    )}
-                    {item === "커피" && (
-                      <>
-                        <button
-                          className={`${styles.unitBtn} ${
-                            coffeeUnit === "잔" ? styles.activeUnit : ""
-                          }`}
-                          onClick={() => setCoffeeUnit("잔")}
-                        >
-                          잔
-                        </button>
-                        <button
-                          className={`${styles.unitBtn} ${
-                            coffeeUnit === "포트" ? styles.activeUnit : ""
-                          }`}
-                          onClick={() => setCoffeeUnit("포트")}
-                        >
-                          포트
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                <div className={styles.qtyWrapper}>
-                  <button onClick={() => handleQtyChange(item, -1)}>-</button>
-                  <span className={styles.qty}>{quantities[item]}</span>
-                  <button onClick={() => handleQtyChange(item, 1)}>+</button>
-                </div>
+            {/* 서빙 스타일 선택 */}
+            <div className={styles.styleRow}>
+              <span>서빙 스타일</span>
+              <div className={styles.styleBtnWrapper}>
+                {stylesList.map((style) => (
+                  <button
+                    key={style}
+                    className={`${styles.styleBtn} ${
+                      selectedStyle === style ? styles.activeStyle : ""
+                    }`}
+                    onClick={() => setSelectedStyle(style)}
+                  >
+                    {style.charAt(0).toUpperCase() + style.slice(1)}
+                  </button>
+                ))}
               </div>
             </div>
-          ))}
+            {/* 수량 및 단위 */}
+            <div className={styles.quantitySection}>
+              {Object.keys(quantities).map((item) => (
+                <div key={item} className={styles.quantityRow}>
+                  <span className={styles.itemName}>{item}</span>
+                  <div className={styles.qtyControls}>
+                    {(item === "와인" ||
+                      item === "샴페인" ||
+                      item === "커피") && (
+                      <div className={styles.unitSelect}>
+                        {item === "와인" && (
+                          <>
+                            <button
+                              className={`${styles.unitBtn} ${
+                                wineUnit === "잔" ? styles.activeUnit : ""
+                              }`}
+                              onClick={() => setWineUnit("잔")}
+                            >
+                              잔
+                            </button>
+                            <button
+                              className={`${styles.unitBtn} ${
+                                wineUnit === "병" ? styles.activeUnit : ""
+                              }`}
+                              onClick={() => setWineUnit("병")}
+                            >
+                              병
+                            </button>
+                          </>
+                        )}
+                        {item === "샴페인" && (
+                          <>
+                            <button
+                              className={`${styles.unitBtn} ${
+                                champagneUnit === "잔" ? styles.activeUnit : ""
+                              }`}
+                              onClick={() => setChampagneUnit("잔")}
+                            >
+                              잔
+                            </button>
+                            <button
+                              className={`${styles.unitBtn} ${
+                                champagneUnit === "병" ? styles.activeUnit : ""
+                              }`}
+                              onClick={() => setChampagneUnit("병")}
+                            >
+                              병
+                            </button>
+                          </>
+                        )}
+                        {item === "커피" && (
+                          <>
+                            <button
+                              className={`${styles.unitBtn} ${
+                                coffeeUnit === "잔" ? styles.activeUnit : ""
+                              }`}
+                              onClick={() => setCoffeeUnit("잔")}
+                            >
+                              잔
+                            </button>
+                            <button
+                              className={`${styles.unitBtn} ${
+                                coffeeUnit === "포트" ? styles.activeUnit : ""
+                              }`}
+                              onClick={() => setCoffeeUnit("포트")}
+                            >
+                              포트
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
 
-          {/* 하단 버튼 */}
-          <div className={styles.bottomBtns}>
-            <button
-              className={styles.addMenuBtn}
-              onClick={() => setShowAddons((prev) => !prev)}
-            >
-              {showAddons
-                ? "- 다른 디너의 메뉴 추가"
-                : "+ 다른 디너의 메뉴 추가"}
-            </button>
-            <div className={styles.orderBtns}>
-              <button onClick={() => handleOrder("carted")}>
-                장바구니 담기
-              </button>
-            </div>
-          </div>
-
-          {/* 총 가격 */}
-          <p className={styles.totalPrice}>
-            가격:{" "}
-            {calculateTotalPrice(
-              quantities,
-              selectedStyle,
-              units
-            ).toLocaleString()}
-            원
-          </p>
-
-          {/* 추가 메뉴 */}
-          {showAddons && availableAddons.length > 0 && (
-            <div className={styles.addonList}>
-              {availableAddons.map((addon) => (
-                <button key={addon} onClick={() => handleAddItem(addon)}>
-                  {addon}
-                </button>
+                    <div className={styles.qtyWrapper}>
+                      <button onClick={() => handleQtyChange(item, -1)}>
+                        -
+                      </button>
+                      <span className={styles.qty}>{quantities[item]}</span>
+                      <button onClick={() => handleQtyChange(item, 1)}>
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ))}
+
+              {/* 하단 버튼 */}
+              <div className={styles.bottomBtns}>
+                <button
+                  className={styles.addMenuBtn}
+                  onClick={() => setShowAddons((prev) => !prev)}
+                >
+                  {showAddons
+                    ? "- 다른 디너의 메뉴 추가"
+                    : "+ 다른 디너의 메뉴 추가"}
+                </button>
+                <div className={styles.orderBtns}>
+                  <button onClick={() => handleOrder("carted")}>
+                    장바구니 담기
+                  </button>
+                </div>
+              </div>
+
+              {/* 총 가격 */}
+              <p className={styles.totalPrice}>
+                가격:{" "}
+                {calculateTotalPrice(
+                  quantities,
+                  selectedStyle,
+                  units
+                ).toLocaleString()}
+                원
+              </p>
+
+              {/* 추가 메뉴 */}
+              {showAddons && availableAddons.length > 0 && (
+                <div className={styles.addonList}>
+                  {availableAddons.map((addon) => (
+                    <button key={addon} onClick={() => handleAddItem(addon)}>
+                      {addon}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
