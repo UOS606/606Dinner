@@ -32,7 +32,7 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO style_surcharges(style_id, surcharge_type, value)
 SELECT s.id, 'FLAT', 12000
 FROM styles s
-WHERE s.code='DELUXE'
+WHERE s.code='DELuxe'
 ON DUPLICATE KEY UPDATE
   value = VALUES(value);
 
@@ -51,7 +51,7 @@ ON DUPLICATE KEY UPDATE
 
 -- =========================
 -- items
---  base_price가 NULL 허용이어야 함
+-- (기존 메뉴 및 품목)
 -- =========================
 INSERT INTO items(code, name, base_price, is_active) VALUES
   ('STEAK','스테이크',10000,1),
@@ -59,7 +59,7 @@ INSERT INTO items(code, name, base_price, is_active) VALUES
   ('WINE','와인',   NULL,1),
   ('CHAMPAGNE','샴페인',NULL,1),
   ('COFFEE','커피', NULL,1),
-  ('EGG_SCRAMBLE','에그 스크램블',1000,1),
+  ('EGG_SCRAMBLE','에그스크램블',1000,1),
   ('BACON','베이컨',1500,1),
   ('BREAD','빵',2000,1),
   ('BAGUETTE','바게트',1500,1)
@@ -87,3 +87,21 @@ SELECT i.id, u.id,  7000 FROM items i JOIN units u ON i.code='CHAMPAGNE'   AND u
 SELECT i.id, u.id, 45000 FROM items i JOIN units u ON i.code='CHAMPAGNE'   AND u.code='BOTTLE'
 ON DUPLICATE KEY UPDATE
   price = VALUES(price);
+
+-- =========================
+-- ingredients (초기 재고)
+-- 프론트 key(한글)과 반드시 동일해야 함
+-- =========================
+INSERT INTO ingredients(name, quantity, unit) VALUES
+  ('샴페인',     10, '병'),
+  ('와인',       20, '병'),
+  ('커피',      100, '잔'),
+  ('바게트',     30, '개'),
+  ('빵',         60, '개'),
+  ('샐러드',     40, '접시'),
+  ('스테이크',   50, '접시'),
+  ('베이컨',     70, '인분'),
+  ('에그스크램블', 80, '인분')
+ON DUPLICATE KEY UPDATE
+  quantity = VALUES(quantity),
+  unit     = VALUES(unit);

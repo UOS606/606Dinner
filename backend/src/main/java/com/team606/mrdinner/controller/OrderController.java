@@ -78,6 +78,13 @@ public class OrderController {
         ));
     }
 
+    @GetMapping("/admin/all")
+    public ResponseEntity<List<OrderResponseDto>> listAll() {
+        return ResponseEntity.ok(
+                orderService.getAllOrdersForAdmin()
+        );
+    }
+
     // ---- 요청 바디 DTO (DELETE용) ----
     public static class DeleteCartRequest {
         private String id;            // username

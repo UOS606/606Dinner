@@ -1,140 +1,214 @@
+// src/components/admin/OrderForm.jsx
 import { useState, useEffect } from "react";
 import { ingredients, defaultStock } from "../common/Info";
 import { isForTest } from "../../App";
 import styles from "./OrderForm.module.css";
 
 const OrderForm = () => {
-  const [quantities, setQuantities] = useState({}); // 수량
-  const [orders, setOrders] = useState([]); // 주문 내역
+  const [quantities, setQuantities] = useState({});
+  const [orders, setOrders] = useState([]); // 항상 배열로 유지
 
-  // 주문 내역 가져오기 (useEffect)
+  // 공통: Authorization 헤더 생성
+  const getAuthHeaders = (withJson = false) => {
+    const token = localStorage.getItem("token");
+    const headers = {};
+    if (withJson) headers["Content-Type"] = "application/json";
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return headers;
+  };
+
+  // 주문 내역 로딩
   useEffect(() => {
-    const loadOrders = () => {
+    const loadOrders = async () => {
       if (isForTest) {
         const storedOrders = JSON.parse(
           localStorage.getItem("test_ingredients_orders") || "[]"
         );
-        setOrders(storedOrders);
-      } else {
-        // 실제 API로 주문 내역 가져오기
-        fetch("/api/fetch/ingredients_orders")
-          .then((res) => res.json())
-          .then((data) => {
-            // data가 배열인지 확인하고, 아니면 빈 배열로 설정
-            setOrders(Array.isArray(data) ? data : []);
-          })
-          .catch((err) => console.error(err));
+        setOrders(Array.isArray(storedOrders) ? storedOrders : []);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/fetch/ingredients_orders", {
+          method: "GET",
+          headers: getAuthHeaders(false),
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        setOrders(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("loadOrders error:", err);
+        setOrders([]); // 안전하게 초기화
       }
     };
 
     loadOrders();
-  }, []); // 컴포넌트가 마운트될 때만 실행
+  }, []);
 
-  // 주문 입력 처리
+  // 입력 변경
   const handleChange = (key, value) => {
     setQuantities((prev) => ({ ...prev, [key]: Number(value) }));
   };
 
-  // 주문 처리
-  const handleOrder = () => {
+  // 주문하기
+  const handleOrder = async () => {
     const hasInput = Object.values(quantities).some((val) => val > 0);
     if (!hasInput) {
       alert("수량을 입력해주세요.");
       return;
     }
 
-    const newOrder = {
-      orderItems: Object.keys(ingredients).map((key) => ({
-        item: key,
-        quantity: quantities[key] || 0,
-      })),
-      state: "ordered",
-      orderDate: new Date(), // 날짜를 읽기 쉬운 형식으로
-    };
+    const itemsPayload = Object.keys(ingredients).map((key) => ({
+      item: key,
+      quantity: quantities[key] || 0,
+    }));
 
-    // 주문 내역 저장
+    // 0만 있는 주문은 굳이 서버에 안 보내도 되지만, 기존 동작 유지
     if (isForTest) {
+      const newOrder = {
+        orderItems: itemsPayload, // 테스트 모드는 기존 key 유지
+        state: "ordered",
+        orderDate: new Date().toISOString(),
+      };
+
       const storedOrders = JSON.parse(
         localStorage.getItem("test_ingredients_orders") || "[]"
       );
-      storedOrders.push(newOrder);
-      setOrders(storedOrders); // 상태 업데이트
+      const updated = [...storedOrders, newOrder];
       localStorage.setItem(
         "test_ingredients_orders",
-        JSON.stringify(storedOrders)
+        JSON.stringify(updated)
       );
+      setOrders(updated);
+      alert("주문이 완료되었습니다.");
     } else {
-      fetch("/api/fetch/ingredients_orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newOrder),
-      })
-        .then((res) => res.json())
-        .then(() => {
-          setOrders((prevOrders) => [...prevOrders, newOrder]);
-          alert("주문이 완료되었습니다.");
-        })
-        .catch((err) => console.error(err));
+      // 실제 백엔드는 IngredientOrder 엔티티와 맞추기 위해 items 사용
+      const newOrder = {
+        items: itemsPayload,
+        state: "ordered",
+        orderDate: new Date().toISOString(),
+      };
+
+      try {
+        const res = await fetch("/api/fetch/ingredients_orders", {
+          method: "POST",
+          headers: getAuthHeaders(true),
+          body: JSON.stringify(newOrder),
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const saved = await res.json(); // 서버에서 저장된 주문 반환한다고 가정
+        setOrders((prev) => [...prev, saved]);
+        alert("주문이 완료되었습니다.");
+      } catch (err) {
+        console.error("handleOrder error:", err);
+        alert("주문 요청에 실패했습니다. 다시 시도해주세요.");
+      }
     }
 
-    setQuantities({ ...defaultStock }); // 수량 초기화
+    // 입력값 초기화
+    setQuantities({ ...defaultStock });
   };
 
-  // 재고 반영 처리
-  const handleApplyStock = (order) => {
+  // 재고 반영 버튼
+  const handleApplyStock = async (order) => {
     if (isForTest) {
-      // 상태를 applied로 변경
-      const updatedOrders = orders.map((o) =>
+      // 1) 주문 상태 변경
+      const updatedOrders = (orders || []).map((o) =>
         o === order ? { ...o, state: "applied" } : o
       );
-
-      // localStorage에 업데이트된 주문 내역 저장
       localStorage.setItem(
         "test_ingredients_orders",
         JSON.stringify(updatedOrders)
       );
-      setOrders(updatedOrders); // 상태 업데이트
+      setOrders(updatedOrders);
 
-      // 재고 반영
+      // 2) 재고 반영
       const updatedStock = JSON.parse(
         localStorage.getItem("test_ingredients") || "{}"
       );
-      order.orderItems.forEach((item) => {
-        updatedStock[item.item] =
-          (updatedStock[item.item] || 0) + item.quantity;
+      const orderItems = order.orderItems || order.items || [];
+      orderItems.forEach((item) => {
+        if (item.quantity > 0) {
+          updatedStock[item.item] =
+            (updatedStock[item.item] || 0) + item.quantity;
+        }
       });
       localStorage.setItem("test_ingredients", JSON.stringify(updatedStock));
 
-      // 페이지 새로고침
-    } else {
-      fetch("/api/fetch/ingredients_orders", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...order, state: "applied" }),
-      })
-        .then((res) => res.json())
-        .then(() => {
-          // 주문 상태 업데이트
-          setOrders((prevOrders) =>
-            prevOrders.map((o) =>
-              o === order ? { ...o, state: "applied" } : o
-            )
-          );
-
-          // 재고 반영
-          fetch("/api/fetch/ingredients", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ order: order.orderItems, action: "add" }),
-          });
-
-          // 페이지 새로고침
-        })
-        .catch((err) => console.error(err));
+      window.location.reload();
+      return;
     }
-    window.location.reload();
+
+    // ===== 실제 백엔드 처리 =====
+
+    // 1) 서버에 주문 상태를 applied 로 변경 요청
+    const updatedOrder = { ...order, state: "applied" };
+
+    try {
+      const res = await fetch("/api/fetch/ingredients_orders", {
+        method: "PUT",
+        headers: getAuthHeaders(true),
+        body: JSON.stringify(updatedOrder),
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      // 프론트 상태에서도 applied 반영
+      setOrders((prev) =>
+        (prev || []).map((o) =>
+          o.id === order.id ? { ...o, state: "applied" } : o
+        )
+      );
+    } catch (err) {
+      console.error("applyOrderState error:", err);
+      alert("주문 상태 반영에 실패했습니다. 다시 시도해주세요.");
+      return;
+    }
+
+    // 2) 재고 증가 요청 (/api/ingredients 로 PUT)  ← 여기가 핵심 수정
+    try {
+      const stockUpdate = {};
+      const orderItems = order.items || order.orderItems || [];
+
+      orderItems.forEach((item) => {
+        if (item.quantity > 0) {
+          stockUpdate[item.item] =
+            (stockUpdate[item.item] || 0) + item.quantity;
+        }
+      });
+
+      // 아무 것도 없으면 굳이 호출 안 함
+      if (Object.keys(stockUpdate).length > 0) {
+        const res = await fetch("/api/ingredients", {
+          method: "PUT",
+          headers: getAuthHeaders(true),
+          body: JSON.stringify(stockUpdate),
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      }
+
+      // 새로고침해서 좌측 "실시간 재고 현황" 바로 갱신
+      window.location.reload();
+    } catch (err) {
+      console.error("applyStock error:", err);
+      alert("재고 반영에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
+  // 화면 렌더링
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>재고 관리</h2>
@@ -158,25 +232,34 @@ const OrderForm = () => {
         주문하기
       </button>
 
-      {/* "applied" 상태는 아예 렌더링하지 않음 */}
+      {/* "ordered" 상태만 표시 */}
       <div className={styles.orderItemsList}>
-        {Array.isArray(orders) &&
-          orders
-            .filter((order) => order.state === "ordered") // "ordered" 상태인 것만 렌더링
-            .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)) // orderDate 기준 내림차순 정렬
-            .map((order, index) => (
-              <div key={index} className={styles.orderItemRow}>
+        {(orders || [])
+          .filter((order) => order.state === "ordered")
+          .sort(
+            (a, b) =>
+              new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
+          )
+          .map((order) => {
+            const orderItems = (order.items || order.orderItems || []).filter(
+              (item) => item.quantity > 0
+            );
+
+            return (
+              <div key={order.id ?? order.orderDate} className={styles.orderItemRow}>
                 <div>
-                  <strong>{new Date(order.orderDate).toLocaleString()}</strong>
+                  <strong>
+                    {order.orderDate
+                      ? new Date(order.orderDate).toLocaleString()
+                      : ""}
+                  </strong>
                 </div>
                 <div>
-                  {order.orderItems
-                    .filter((item) => item.quantity > 0) // 수량이 0인 항목은 제외
-                    .map((item, idx) => (
-                      <div key={idx}>
-                        {item.item}: {item.quantity}
-                      </div>
-                    ))}
+                  {orderItems.map((item, idx) => (
+                    <div key={idx}>
+                      {item.item}: {item.quantity}
+                    </div>
+                  ))}
                 </div>
                 <button
                   className={styles.applyBtn}
@@ -185,7 +268,8 @@ const OrderForm = () => {
                   재고 반영
                 </button>
               </div>
-            ))}
+            );
+          })}
       </div>
     </div>
   );

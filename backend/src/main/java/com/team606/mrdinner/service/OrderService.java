@@ -186,7 +186,7 @@ public class OrderService {
                 .menuName(o.getMenuName())
                 .style(styleCode)
                 .action(action)
-                // 🔽 OffsetDateTime -> LocalDateTime 변환
+                // OffsetDateTime -> LocalDateTime 변환
                 .cartedTime(o.getCartedTime() == null ? null : o.getCartedTime().toLocalDateTime())
                 .orderedTime(o.getOrderedTime() == null ? null : o.getOrderedTime().toLocalDateTime())
                 .cookedTime(o.getCookedTime() == null ? null : o.getCookedTime().toLocalDateTime())
@@ -317,4 +317,39 @@ public class OrderService {
                 .unit(oi.getUnit().getName())
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponseDto> getAllOrdersForAdmin() {
+        return orderRepository.findAll().stream()
+                .map(this::toOrderResponseDto)
+                .toList();
+    }
+
+    @Transactional
+    public void updateStatus(String userId, Instant cartedTime, String action) {
+
+        OffsetDateTime ct = cartedTime.atOffset(ZoneOffset.UTC);
+
+        Order order = orderRepository
+                .findByCustomerUsernameAndCartedTime(userId, ct)
+                .orElseThrow(() -> new IllegalArgumentException("주문 없음"));
+
+        switch (action) {
+            case "cooking":
+                order.setStatus(OrderStatus.RECEIVED);
+                break;
+            case "cooked":
+                order.setStatus(OrderStatus.COOKED);
+                order.setCookedTime(OffsetDateTime.now());
+                break;
+            case "delivering":
+                order.setStatus(OrderStatus.RECEIVED);
+                break;
+            case "delivered":
+                order.setStatus(OrderStatus.DELIVERED);
+                order.setDeliveredTime(OffsetDateTime.now());
+                break;
+        }
+    }
+
 }
