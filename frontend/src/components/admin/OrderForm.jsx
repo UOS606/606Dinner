@@ -67,7 +67,6 @@ const OrderForm = () => {
       quantity: quantities[key] || 0,
     }));
 
-    // 0만 있는 주문은 굳이 서버에 안 보내도 되지만, 기존 동작 유지
     if (isForTest) {
       const newOrder = {
         orderItems: itemsPayload, // 테스트 모드는 기존 key 유지
@@ -120,6 +119,8 @@ const OrderForm = () => {
   // 재고 반영 버튼
   const handleApplyStock = async (order) => {
     if (isForTest) {
+      // ===== TEST 모드: 로컬스토리지 사용 =====
+
       // 1) 주문 상태 변경
       const updatedOrders = (orders || []).map((o) =>
         o === order ? { ...o, state: "applied" } : o
@@ -148,6 +149,7 @@ const OrderForm = () => {
     }
 
     // ===== 실제 백엔드 처리 =====
+    // 재고 증가는 백엔드 IngredientOrderService.apply() 에서만 수행하도록 함
 
     // 1) 서버에 주문 상태를 applied 로 변경 요청
     const updatedOrder = { ...order, state: "applied" };
@@ -169,41 +171,12 @@ const OrderForm = () => {
           o.id === order.id ? { ...o, state: "applied" } : o
         )
       );
-    } catch (err) {
-      console.error("applyOrderState error:", err);
-      alert("주문 상태 반영에 실패했습니다. 다시 시도해주세요.");
-      return;
-    }
 
-    // 2) 재고 증가 요청 (/api/ingredients 로 PUT)  ← 여기가 핵심 수정
-    try {
-      const stockUpdate = {};
-      const orderItems = order.items || order.orderItems || [];
-
-      orderItems.forEach((item) => {
-        if (item.quantity > 0) {
-          stockUpdate[item.item] =
-            (stockUpdate[item.item] || 0) + item.quantity;
-        }
-      });
-
-      // 아무 것도 없으면 굳이 호출 안 함
-      if (Object.keys(stockUpdate).length > 0) {
-        const res = await fetch("/api/ingredients", {
-          method: "PUT",
-          headers: getAuthHeaders(true),
-          body: JSON.stringify(stockUpdate),
-        });
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-      }
-
-      // 새로고침해서 좌측 "실시간 재고 현황" 바로 갱신
+      alert("재고가 반영되었습니다.");
+      // 좌측 "실시간 재고 현황" 즉시 갱신
       window.location.reload();
     } catch (err) {
-      console.error("applyStock error:", err);
+      console.error("applyOrderState error:", err);
       alert("재고 반영에 실패했습니다. 다시 시도해주세요.");
     }
   };
@@ -246,7 +219,10 @@ const OrderForm = () => {
             );
 
             return (
-              <div key={order.id ?? order.orderDate} className={styles.orderItemRow}>
+              <div
+                key={order.id ?? order.orderDate}
+                className={styles.orderItemRow}
+              >
                 <div>
                   <strong>
                     {order.orderDate
