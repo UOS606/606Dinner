@@ -126,7 +126,8 @@ public class OrderService {
 
     private OrderStatus mapActionToStatus(String action) {
         if ("carted".equalsIgnoreCase(action)) return OrderStatus.CARTED;
-        return OrderStatus.RECEIVED;
+        // 장바구니가 아닌 경우 기본은 주문 접수 상태
+        return OrderStatus.ORDERED;
     }
 
     private String resolveUsernameFromSecurityContext() {
@@ -134,6 +135,57 @@ public class OrderService {
         if (auth == null || auth.getName() == null)
             throw new IllegalStateException("인증 정보가 없습니다.");
         return auth.getName();
+    }
+
+    // ======================= Order → 프론트 액션 문자열 변환 =======================
+
+    /**
+     * DB의 OrderStatus + 시간 필드들을 조합해서
+     * 프론트에서 쓰는 action 문자열로 변환
+     *
+     * ordered     : 고객이 주문만 넣은 상태
+     * cooking     : 조리 배정 후, 조리 중
+     * cooked      : 조리 완료, 배달 배정 대기
+     * delivering  : 배달 중
+     * delivered   : 배달 완료
+     */
+    private String toActionString(Order o) {
+        OrderStatus status = o.getStatus();
+        if (status == null) return "checking";
+
+        switch (status) {
+            case CARTED:
+                return "carted";
+
+            case ORDERED:
+                // 아직 조리/배달 배정 전
+                return "ordered";
+
+            case RECEIVED:
+                // RECEIVED 는 조리/배달 과정에서만 사용
+                if (o.getCookedTime() == null) {
+                    // 조리 시작만 된 상태
+                    return "cooking";
+                }
+                if (o.getDeliveredTime() == null) {
+                    // 조리는 끝났고, 배달 중
+                    return "delivering";
+                }
+                return "delivered";
+
+            case COOKED:
+                // 조리 완료, 배달 배정 전
+                return "cooked";
+
+            case DELIVERED:
+                return "delivered";
+
+            case CANCELLED:
+                return "cancelled";
+
+            default:
+                return "checking";
+        }
     }
 
     // ======================= 주문 내역 조회 (OrderHistory.jsx: GET /api/orders) =======================
@@ -170,12 +222,11 @@ public class OrderService {
     }
 
     private OrderResponseDto toOrderResponseDto(Order o) {
-        // style: "SIMPLE" / "GRAND" / "DELUXE" ... → 그대로 내려도 JS에서 toLowerCase() 해서 씀
         String styleCode = (o.getStyle() != null && o.getStyle().getCode() != null)
                 ? o.getStyle().getCode()
                 : "DEFAULT";
 
-        String action = toActionString(o.getStatus());
+        String action = toActionString(o);
 
         List<OrderItemDto> items = o.getItems().stream()
                 .map(this::toItemDto)
@@ -196,20 +247,6 @@ public class OrderService {
                 .items(items)
                 .build();
     }
-
-
-    private String toActionString(OrderStatus status) {
-        if (status == null) return "checking";
-
-        return switch (status) {
-            case CARTED -> "carted";
-            case RECEIVED, ORDERED -> "ordered";   // 둘 다 프론트에선 '주문 접수'로 보이게
-            case COOKED -> "cooked";
-            case DELIVERED -> "delivered";
-            case CANCELLED -> "cancelled";         // 프론트에서 따로 처리 안 하지만 구분용
-        };
-    }
-
 
     // ======================= 장바구니 관련 API (Cart.jsx) =======================
 
@@ -326,28 +363,44 @@ public class OrderService {
     }
 
     @Transactional
-    public void updateStatus(String userId, Instant cartedTime, String action) {
+    public void updateStatus(String orderIdStr, Instant cartedTime, String action) {
 
-        OffsetDateTime ct = cartedTime.atOffset(ZoneOffset.UTC);
+        // 프론트에서 오는 userId(사실은 주문 PK)를 Long으로 변환
+        Long orderId;
+        try {
+            orderId = Long.parseLong(orderIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("잘못된 주문 ID: " + orderIdStr);
+        }
 
-        Order order = orderRepository
-                .findByCustomerUsernameAndCartedTime(userId, ct)
+        // cartedTime 은 지금은 쓰지 않고, orderId 기준으로만 조회
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문 없음"));
 
         switch (action) {
             case "cooking":
+                // 조리 시작
                 order.setStatus(OrderStatus.RECEIVED);
                 break;
+
             case "cooked":
+                // 조리 완료
                 order.setStatus(OrderStatus.COOKED);
-                order.setCookedTime(OffsetDateTime.now());
+                order.setCookedTime(OffsetDateTime.now(ZoneOffset.UTC));
                 break;
+
             case "delivering":
+                // 배달 시작 (조리 완료는 된 상태여야 함)
                 order.setStatus(OrderStatus.RECEIVED);
+                if (order.getCookedTime() == null) {
+                    order.setCookedTime(OffsetDateTime.now(ZoneOffset.UTC));
+                }
                 break;
+
             case "delivered":
+                // 배달 완료
                 order.setStatus(OrderStatus.DELIVERED);
-                order.setDeliveredTime(OffsetDateTime.now());
+                order.setDeliveredTime(OffsetDateTime.now(ZoneOffset.UTC));
                 break;
         }
     }

@@ -4,6 +4,33 @@ import { calculateTotalPrice } from "../common/Info";
 import { isForTest } from "../../App";
 import { unitConversion } from "../common/Info";
 
+// 테스트/백엔드 실패 시 사용할 기본 메뉴 구성
+const TEST_MENU_ITEMS = {
+  Valentine: [
+    { name: "와인", defaultQty: 1 },
+    { name: "스테이크", defaultQty: 1 },
+  ],
+  French: [
+    { name: "커피", defaultQty: 1 },
+    { name: "와인", defaultQty: 1 },
+    { name: "샐러드", defaultQty: 1 },
+    { name: "스테이크", defaultQty: 1 },
+  ],
+  English: [
+    { name: "에그스크램블", defaultQty: 1 },
+    { name: "베이컨", defaultQty: 1 },
+    { name: "빵", defaultQty: 1 },
+    { name: "스테이크", defaultQty: 1 },
+  ],
+  "Champagne Feast": [
+    { name: "샴페인", defaultQty: 1 },
+    { name: "와인", defaultQty: 1 },
+    { name: "커피", defaultQty: 1 },
+    { name: "바게트", defaultQty: 4 },
+    { name: "스테이크", defaultQty: 2 },
+  ],
+};
+
 const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const stylesList = ["simple", "grand", "deluxe"];
 
@@ -23,39 +50,26 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const [showAddons, setShowAddons] = useState(false);
 
   useEffect(() => {
+    // 공통 초기화 함수: TEST_MENU_ITEMS 기반으로 수량/메뉴 설정
+    const initFromTestData = () => {
+      setMenuItemsData(TEST_MENU_ITEMS);
+      const baseItems = TEST_MENU_ITEMS[menu.name] || [];
+      const initial = baseItems.reduce((acc, item) => {
+        acc[item.name] = item.defaultQty;
+        return acc;
+      }, {});
+      setQuantities(initial);
+      // 프론트 전용 모드에서 수량 제한이 걸리지 않도록 넉넉한 재고 설정
+      const dummyStock = {};
+      baseItems.forEach((item) => {
+        dummyStock[item.name] = 9999;
+      });
+      setStock(dummyStock);
+    };
+
     if (isForTest) {
-      const testData = {
-        Valentine: [
-          { name: "와인", defaultQty: 1 },
-          { name: "스테이크", defaultQty: 1 },
-        ],
-        French: [
-          { name: "커피", defaultQty: 1 },
-          { name: "와인", defaultQty: 1 },
-          { name: "샐러드", defaultQty: 1 },
-          { name: "스테이크", defaultQty: 1 },
-        ],
-        English: [
-          { name: "에그스크램블", defaultQty: 1 },
-          { name: "베이컨", defaultQty: 1 },
-          { name: "빵", defaultQty: 1 },
-          { name: "스테이크", defaultQty: 1 },
-        ],
-        "Champagne Feast": [
-          { name: "샴페인", defaultQty: 1 },
-          { name: "와인", defaultQty: 1 },
-          { name: "커피", defaultQty: 1 },
-          { name: "바게트", defaultQty: 4 },
-          { name: "스테이크", defaultQty: 2 },
-        ],
-      };
-      setMenuItemsData(testData);
-      setQuantities(
-        testData[menu.name].reduce((acc, item) => {
-          acc[item.name] = item.defaultQty;
-          return acc;
-        }, {})
-      );
+      // 테스트 모드에서는 항상 상단의 TEST_MENU_ITEMS 사용
+      initFromTestData();
     } else {
       const fetchData = async () => {
         try {
@@ -63,6 +77,10 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
             fetch("/api/menu"), // 위에 있는 메뉴 리스트 형태
             fetch("/api/stock"), // common/Info.js의 defaultStock을 불러옴
           ]);
+
+          if (!menuRes.ok || !stockRes.ok) {
+            throw new Error("메뉴 또는 재고 API 응답이 올바르지 않습니다.");
+          }
 
           const menuData = await menuRes.json();
           const stockData = await stockRes.json();
@@ -74,33 +92,33 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
           setMenuItemsData(formattedMenu);
           setStock(stockData);
 
-          const initialQuantities = formattedMenu[menu.name].reduce(
-            (acc, item) => {
-              const unit =
-                item.name === "와인"
-                  ? wineUnit
-                  : item.name === "샴페인"
-                  ? champagneUnit
-                  : item.name === "커피"
-                  ? coffeeUnit
-                  : "개";
+          const baseItems = formattedMenu[menu.name] || [];
+          const initialQuantities = baseItems.reduce((acc, item) => {
+            const unit =
+              item.name === "와인"
+                ? wineUnit
+                : item.name === "샴페인"
+                ? champagneUnit
+                : item.name === "커피"
+                ? coffeeUnit
+                : "개";
 
-              const conversion = unitConversion[unit] || 1;
-              const availableQty = stockData[item.name]
-                ? Math.floor(stockData[item.name] / conversion)
-                : 0;
+            const conversion = unitConversion[unit] || 1;
+            const availableQty = stockData[item.name]
+              ? Math.floor(stockData[item.name] / conversion)
+              : 0;
 
-              acc[item.name] = Math.min(item.defaultQty, availableQty);
-              return acc;
-            },
-            {}
-          );
+            acc[item.name] = Math.min(item.defaultQty, availableQty);
+            return acc;
+          }, {});
           setQuantities(initialQuantities);
         } catch (err) {
           console.error(
-            "메뉴 또는 재고 데이터를 불러오는데 실패했습니다.",
+            "메뉴 또는 재고 데이터를 불러오는데 실패했습니다. 테스트 데이터로 대체합니다.",
             err
           );
+          // 백엔드가 죽어 있거나 에러가 나면 테스트용 데이터로 채워서 화면이 비지 않게 함
+          initFromTestData();
         }
       };
       fetchData();
@@ -124,7 +142,8 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
         .replace(/\s/g, "_")}/default.png`;
 
   const handleQtyChange = (item, delta) => {
-    let maxQty = 0;
+    let maxQty;
+
     if (isForTest) {
       const testIngredients = JSON.parse(
         localStorage.getItem("test_ingredients") || "{}"
@@ -142,21 +161,30 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
         testIngredients[item] != null ? testIngredients[item] / conversion : 0;
       maxQty = Math.floor(available);
     } else {
-      const unit =
-        item === "와인"
-          ? wineUnit
-          : item === "샴페인"
-          ? champagneUnit
-          : item === "커피"
-          ? coffeeUnit
-          : "개";
-      const conversion = unitConversion[unit] || 1;
-      const available = stock[item] != null ? stock[item] / conversion : 0;
-      maxQty = Math.floor(available);
+      // 백엔드 재고 정보가 없으면(프론트 단독 실행) 수량 제한 없이 동작
+      const hasStockInfo = Object.keys(stock).length > 0;
+
+      if (!hasStockInfo) {
+        maxQty = Number.MAX_SAFE_INTEGER;
+      } else {
+        const unit =
+          item === "와인"
+            ? wineUnit
+            : item === "샴페인"
+            ? champagneUnit
+            : item === "커피"
+            ? coffeeUnit
+            : "개";
+        const conversion = unitConversion[unit] || 1;
+        const available =
+          stock[item] != null ? stock[item] / conversion : 0;
+        maxQty = Math.floor(available);
+      }
     }
 
     setQuantities((prev) => {
-      const newQty = Math.max(0, prev[item] + delta);
+      const current = prev[item] || 0;
+      const newQty = Math.max(0, current + delta);
       return {
         ...prev,
         [item]: Math.min(newQty, maxQty),

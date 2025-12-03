@@ -26,7 +26,7 @@ const Assign = () => {
             },
           });
           const data = await res.json();
-          // API 응답이 유효한 객체인지, 그리고 필수 속성이 배열인지 확인
+          // 응답 형식이 이상하면 초기값으로
           if (
             data &&
             Array.isArray(data.cook) &&
@@ -34,10 +34,6 @@ const Assign = () => {
           ) {
             setStaff(data);
           } else {
-            // 유효하지 않은 응답일 경우 초기값으로 설정하여 오류 방지
-            console.warn(
-              "Invalid staff data received from API. Using initial staff."
-            );
             setStaff({ ...initialStaff });
           }
         } catch (err) {
@@ -56,12 +52,13 @@ const Assign = () => {
 
   const loadOrders = async () => {
     setLoading(true);
+
     if (isForTest) {
       const savedOrders = JSON.parse(
         localStorage.getItem("test_orders") || "[]"
       );
       const historyOrders = savedOrders
-        .filter((o) => o.action !== "carted")
+        .filter((o) => o.action !== "carted" && o.action !== "delivered")
         .sort(
           (a, b) => new Date(b.orderedTime || 0) - new Date(a.orderedTime || 0)
         );
@@ -70,16 +67,20 @@ const Assign = () => {
     } else {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("/api/orders", {
+        // ★ 백엔드 컨트롤러: GET /api/admin/orders/all
+        const res = await fetch("/api/admin/orders/all", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
+
         const historyOrders = data
-          .filter((o) => o.action !== "carted")
+          // carted, delivered 는 어드민 화면에서 제외
+          .filter((o) => o.action !== "carted" && o.action !== "delivered")
           .sort(
             (a, b) =>
               new Date(b.orderedTime || 0) - new Date(a.orderedTime || 0)
           );
+
         setOrders(historyOrders);
         setLoading(false);
       } catch (err) {
@@ -89,7 +90,18 @@ const Assign = () => {
     }
   };
 
+  // 백엔드에 넘길 cartedTime 문자열을 Instant.parse 가능하게 변환
+  const toApiCartedTime = (cartedTime) => {
+    if (!cartedTime) return null;
+    if (typeof cartedTime === "string") {
+      // LocalDateTime("2025-11-30T03:40:00") 형태면 Z 붙여서 Instant 로 파싱 가능하게
+      return cartedTime.endsWith("Z") ? cartedTime : `${cartedTime}Z`;
+    }
+    return cartedTime;
+  };
+
   const assignStaff = async (userId, cartedTime, type, staffName) => {
+    // 1) 프론트 상태 먼저 반영
     const newStaff = { ...staff };
     newStaff[type] = newStaff[type].map(([name, info]) =>
       name === staffName ? [name, { userId, cartedTime }] : [name, info]
@@ -104,15 +116,15 @@ const Assign = () => {
     });
     setOrders(updatedOrders);
 
-    // test 모드이면 localStorage 저장
     if (isForTest) {
       localStorage.setItem("test_staffs", JSON.stringify(newStaff));
       localStorage.setItem("test_orders", JSON.stringify(updatedOrders));
     } else {
       try {
         const token = localStorage.getItem("token");
+        const apiCartedTime = toApiCartedTime(cartedTime);
 
-        // 직원 배정 + orders 상태 업데이트
+        // 직원 배정
         await fetch(`/api/staffs`, {
           method: "POST",
           headers: {
@@ -122,7 +134,8 @@ const Assign = () => {
           body: JSON.stringify({ userId, cartedTime, type, staffName }),
         });
 
-        await fetch(`/api/orders`, {
+        // 주문 상태 업데이트 (조리 배정 / 배달 배정)
+        await fetch(`/api/admin/orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -130,7 +143,7 @@ const Assign = () => {
           },
           body: JSON.stringify({
             userId,
-            cartedTime,
+            cartedTime: apiCartedTime,
             action: type === "cook" ? "cooking" : "delivering",
           }),
         });
@@ -141,7 +154,7 @@ const Assign = () => {
   };
 
   const markComplete = async (userId, cartedTime, type) => {
-    // orders 상태 업데이트
+    // 1) 프론트 상태 먼저 반영
     const updatedOrders = orders.map((o) => {
       if (o.id === userId && o.cartedTime === cartedTime) {
         const now = new Date().toISOString();
@@ -205,8 +218,9 @@ const Assign = () => {
     } else {
       try {
         const token = localStorage.getItem("token");
+        const apiCartedTime = toApiCartedTime(cartedTime);
 
-        // 직원 해제 + orders 상태 업데이트
+        // 직원 해제
         await fetch(`/api/staffs`, {
           method: "POST",
           headers: {
@@ -216,7 +230,8 @@ const Assign = () => {
           body: JSON.stringify({ userId, cartedTime, type, unassign: true }),
         });
 
-        await fetch(`/api/orders`, {
+        // 주문 상태 업데이트 (조리 완료 / 배달 완료)
+        await fetch(`/api/admin/orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -224,15 +239,16 @@ const Assign = () => {
           },
           body: JSON.stringify({
             userId,
-            cartedTime,
+            cartedTime: apiCartedTime,
             action: type === "cook" ? "cooked" : "delivered",
           }),
         });
 
+        // 재고 차감
         if (cookedOrder && type === "cook") {
           const itemsToSubtract = cookedOrder.items.map((item) => ({
             name: item.name,
-            qty: item.qty * (unitConversion[item.unit] || 1), // 단위 변환 적용
+            qty: item.qty * (unitConversion[item.unit] || 1),
           }));
           await fetch(`/api/ingredients`, {
             method: "POST",
@@ -242,11 +258,12 @@ const Assign = () => {
             },
             body: JSON.stringify({
               action: "subtract",
-              items: itemsToSubtract, // [{name, qty}, ...]
+              items: itemsToSubtract,
             }),
           });
         }
 
+        // 쿠폰 지급
         if (type === "delivery") {
           await fetch(`/api/coupons`, {
             method: "POST",
@@ -258,11 +275,6 @@ const Assign = () => {
               id: userId,
               action: "add",
               deliveredOrderCount: 1,
-              /* TODO
-              서버에서 deliveredOrderCount += 1 처리,
-              그 후 deliveredOrderCount % 5 == 0 이라면 
-              쿠폰 1매 발급 (unusedCouponCount += 1)
-              */
             }),
           });
         }
@@ -273,25 +285,23 @@ const Assign = () => {
   };
 
   const availableStaff = (type) => {
-    // staff[type]이 존재하고 배열인 경우에만 filter를 호출
     if (Array.isArray(staff[type])) {
       return staff[type].filter(([_, info]) => !info.userId);
     }
-    // staff[type]이 유효하지 않으면 빈 배열을 반환하여 렌더링 오류를 방지
     return [];
   };
 
   const getStatusText = (action) => {
     switch (action) {
-      case "ordered": // orderedTime
+      case "ordered":
         return "주문 접수";
-      case "cooking": // 조리 직원 배정 시
+      case "cooking":
         return "조리 중";
-      case "cooked": // cookedTime
+      case "cooked":
         return "조리 완료";
-      case "delivering": // 배달 직원 배정 시
+      case "delivering":
         return "배달 중";
-      case "delivered": // deliveredTime
+      case "delivered":
         return "배달 완료";
       default:
         return "확인 중";
@@ -354,13 +364,15 @@ const Assign = () => {
               <p>고객 아이디: {order.id}</p>
               <p>
                 주문 접수:{" "}
-                {new Date(order.orderedTime).toLocaleString("ko-KR", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {order.orderedTime
+                  ? new Date(order.orderedTime).toLocaleString("ko-KR", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
               </p>
               <p>
                 조리 완료:{" "}
@@ -448,6 +460,7 @@ const Assign = () => {
                     {name}
                   </button>
                 ))}
+
               {order.action === "delivering" &&
                 staff.delivery.some(
                   ([_, info]) =>

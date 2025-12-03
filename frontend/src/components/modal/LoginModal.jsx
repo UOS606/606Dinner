@@ -1,3 +1,4 @@
+// src/components/modal/LoginModal.jsx
 import React, { useState } from "react";
 import styles from "./LoginModal.module.css";
 import { isForTest } from "../../App";
@@ -5,7 +6,6 @@ import { isForTest } from "../../App";
 const LoginModal = ({
   onClose,
   onShowSignup,
-
   onLoginSuccess,
   hidden,
 }) => {
@@ -20,7 +20,7 @@ const LoginModal = ({
     e.preventDefault();
 
     if (isForTest) {
-      // Test Code Start
+      // ---------- TEST CODE ----------
       const users = JSON.parse(localStorage.getItem("test_users") || "[]");
 
       const matchedUser = users.find(
@@ -28,20 +28,19 @@ const LoginModal = ({
       );
 
       if (matchedUser) {
-        // 성공 시 token 대신 간단히 아이디 저장
+        // 테스트 모드에서는 더미 토큰과 아이디만 저장
         localStorage.setItem("token", "dummy-token");
         localStorage.setItem("username", matchedUser.username);
 
         alert("로그인 성공!");
-        if (onLoginSuccess) onLoginSuccess(matchedUser.username); // 부모 콜백 호출
+        if (onLoginSuccess) onLoginSuccess(matchedUser.username);
         onClose();
       } else {
         alert("로그인 실패!");
       }
-      // Test Code End
+      // ---------- TEST CODE END ----------
     } else {
-      // Post Code Start
-
+      // ---------- REAL LOGIN CODE ----------
       try {
         const res = await fetch("/api/login", {
           method: "POST",
@@ -56,19 +55,24 @@ const LoginModal = ({
           return;
         }
 
-        // JWT 토큰 저장
-        localStorage.setItem("token", data.token);
+        // ✅ 토큰 형식 정리: "Bearer xxx" 로 오든, "xxx"로 오든 통일해서 저장
+        let token = data.token;
+        if (typeof token === "string" && token.startsWith("Bearer ")) {
+          token = token.slice(7); // "Bearer " 잘라냄
+        }
+
+        // JWT 토큰과 username 저장
+        localStorage.setItem("token", token);
         localStorage.setItem("username", data.username);
 
         alert("로그인 성공!");
-        if (onLoginSuccess) onLoginSuccess(data.username); // 로그인 상태 반영
+        if (onLoginSuccess) onLoginSuccess(data.username);
         onClose();
       } catch (err) {
         console.error(err);
         alert("서버 오류 발생");
       }
-
-      // Post Code End
+      // ---------- REAL LOGIN CODE END ----------
     }
   };
 
@@ -121,7 +125,7 @@ const LoginModal = ({
               onClick={onShowSignup}
             >
               회원가입
-            </button>{" "}
+            </button>
           </div>
         )}
       </div>
