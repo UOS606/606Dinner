@@ -1,3 +1,4 @@
+-- MySQL용 data.sql
 -- JPA가 테이블 만든 뒤 data.sql이 실행되도록 application.properties에
 -- spring.jpa.defer-datasource-initialization=true  설정 권장
 
@@ -15,26 +16,26 @@ ON DUPLICATE KEY UPDATE
 -- =========================
 -- style_surcharges (스타일별 기본가산비용)
 -- =========================
-INSERT INTO style_surcharges(style_id, surcharge_type, value)
+INSERT INTO style_surcharges(style_id, surcharge_type, surcharge_value)
 SELECT s.id, 'FLAT', 0
 FROM styles s
 WHERE s.code='DEFAULT'
 ON DUPLICATE KEY UPDATE
-  value = VALUES(value);
+  surcharge_value = VALUES(surcharge_value);
 
-INSERT INTO style_surcharges(style_id, surcharge_type, value)
+INSERT INTO style_surcharges(style_id, surcharge_type, surcharge_value)
 SELECT s.id, 'FLAT', 5000
 FROM styles s
 WHERE s.code='GRAND'
 ON DUPLICATE KEY UPDATE
-  value = VALUES(value);
+  surcharge_value = VALUES(surcharge_value);
 
-INSERT INTO style_surcharges(style_id, surcharge_type, value)
+INSERT INTO style_surcharges(style_id, surcharge_type, surcharge_value)
 SELECT s.id, 'FLAT', 12000
 FROM styles s
-WHERE s.code='DELuxe'
+WHERE s.code='DELUXE'
 ON DUPLICATE KEY UPDATE
-  value = VALUES(value);
+  surcharge_value = VALUES(surcharge_value);
 
 -- =========================
 -- units
@@ -93,15 +94,25 @@ ON DUPLICATE KEY UPDATE
 -- 프론트 key(한글)과 반드시 동일해야 함
 -- =========================
 INSERT INTO ingredients(name, quantity, unit) VALUES
-  ('샴페인',     10, '병'),
-  ('와인',       20, '병'),
-  ('커피',      100, '잔'),
-  ('바게트',     30, '개'),
-  ('빵',         60, '개'),
-  ('샐러드',     40, '접시'),
+  ('샴페인',     50, '잔'),
+  ('와인',       50, '잔'),
+  ('커피',       50, '잔'),
+  ('바게트',     50, '개'),
+  ('빵',         50, '개'),
+  ('샐러드',     50, '접시'),
   ('스테이크',   50, '접시'),
-  ('베이컨',     70, '인분'),
-  ('에그스크램블', 80, '인분')
+  ('베이컨',     50, '인분'),
+  ('에그스크램블', 50, '인분')
 ON DUPLICATE KEY UPDATE
   quantity = VALUES(quantity),
   unit     = VALUES(unit);
+
+-- =========================
+-- customers (admin 계정)
+-- password: 1234 (BCrypt 해시)
+-- =========================
+INSERT INTO customers(username, password_hash, name, email, phone, address, card_number, role, enabled, unused_coupon_count, used_coupon_count) VALUES
+  ('admin', '$2b$10$iNLUSUvufitW8B1x4OLCYulMa8JfM/qI6.DIqVho.rupLyG/4RRK.', '관리자', 'admin@606dinner.com', '01000000000', '서울특별시 관리자동', '0000000000000000', 'ROLE_ADMIN', 1, 0, 0)
+ON DUPLICATE KEY UPDATE
+  password_hash = VALUES(password_hash),
+  role = VALUES(role);
