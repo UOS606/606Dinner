@@ -61,6 +61,38 @@ public class IngredientService {
     }
 
     /**
+     * 재고 감소 (조리 완료 시 호출)
+     */
+    @Transactional
+    public void deduct(Map<String, Double> changes) {
+        if (changes == null || changes.isEmpty()) {
+            return;
+        }
+
+        for (Map.Entry<String, Double> entry : changes.entrySet()) {
+            String name = entry.getKey();
+            Double delta = entry.getValue();
+            if (delta == null || delta == 0.0) {
+                continue;
+            }
+
+            Ingredient ingredient = ingredientRepository.findByName(name)
+                    .orElse(null);
+
+            // 해당 재료가 ingredients 테이블에 없으면 스킵 (Item과 Ingredient가 1:1 매핑이 아닐 수 있음)
+            if (ingredient == null) {
+                continue;
+            }
+
+            double newQty = ingredient.getQuantity() - delta;
+            if (newQty < 0) {
+                newQty = 0; // 음수 방지
+            }
+            ingredient.setQuantity(newQty);
+        }
+    }
+
+    /**
      * 주문(IngredientOrder)의 아이템들을 재고에 반영
      */
     @Transactional

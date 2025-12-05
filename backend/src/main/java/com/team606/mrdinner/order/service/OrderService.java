@@ -6,6 +6,7 @@ import com.team606.mrdinner.db.entity.enums.OrderStatus;
 import com.team606.mrdinner.db.entity.enums.SurchargeType;
 import com.team606.mrdinner.db.repository.*;
 import com.team606.mrdinner.account.dto.CouponInfoResponseDto;
+import com.team606.mrdinner.management.service.IngredientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class OrderService {
     private final UnitRepository unitRepository;
     private final ItemUnitPriceRepository itemUnitPriceRepository;
     private final OrderRepository orderRepository;
+    private final IngredientService ingredientService;
 
     // ======================= 주문 생성 (장바구니/바로 주문 공통) =======================
 
@@ -424,6 +426,8 @@ public class OrderService {
                 // 조리 완료
                 order.setStatus(OrderStatus.COOKED);
                 order.setCookedTime(OffsetDateTime.now(ZoneOffset.UTC));
+                // 재고 감소 처리
+                deductIngredients(order);
                 break;
 
             case "delivering":
@@ -440,6 +444,20 @@ public class OrderService {
                 order.setDeliveredTime(OffsetDateTime.now(ZoneOffset.UTC));
                 break;
         }
+    }
+
+    /**
+     * 주문의 아이템들을 기반으로 재고 감소
+     * Item.name과 Ingredient.name이 동일한 한글명으로 매핑됨
+     */
+    private void deductIngredients(Order order) {
+        Map<String, Double> changes = new java.util.LinkedHashMap<>();
+        for (OrderItem oi : order.getItems()) {
+            String itemName = oi.getItem().getName(); // 한글명 (예: "스테이크", "와인")
+            double qty = oi.getQuantity();
+            changes.merge(itemName, qty, Double::sum);
+        }
+        ingredientService.deduct(changes);
     }
 
 }
