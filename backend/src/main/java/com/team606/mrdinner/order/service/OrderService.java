@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
@@ -56,7 +57,13 @@ public class OrderService {
             }
         }
 
-        // 4) 주문 헤더 생성
+        // 4) 배송 희망 날짜 결정 (없으면 오늘 날짜)
+        LocalDate deliveryDate = req.getDeliveryDate();
+        if (deliveryDate == null) {
+            deliveryDate = LocalDate.now();
+        }
+
+        // 5) 주문 헤더 생성
         Order order = Order.builder()
                 .customer(customer)
                 .style(style)
@@ -68,11 +75,12 @@ public class OrderService {
                 .deliveredTime(req.getDeliveredTime())
                 .totalPrice(0)
                 .address(resolvedAddress)
+                .deliveryDate(deliveryDate)
                 .build();
 
         int subtotal = 0;
 
-        // 5) 라인 생성
+        // 6) 라인 생성
         for (OrderItemRequestDto lineReq : req.getItems()) {
             if (lineReq.getQty() <= 0) continue;
 
@@ -100,14 +108,14 @@ public class OrderService {
             order.addItem(oi);
         }
 
-        // 6) 스타일 가산
+        // 7) 스타일 가산
         int total = applyStyleSurcharge(subtotal, style);
         order.setTotalPrice(total);
 
-        // 7) 저장
+        // 8) 저장
         orderRepository.save(order);
 
-        // 8) 응답 DTO
+        // 9) 응답 DTO
         if (order.getCartedTime() == null) {
             order.setCartedTime(OffsetDateTime.now(ZoneOffset.UTC));
         }
@@ -258,6 +266,7 @@ public class OrderService {
                 .deliveredTime(o.getDeliveredTime() == null ? null : o.getDeliveredTime().toLocalDateTime())
                 .address(o.getAddress())
                 .isCouponUsed(o.isCouponUsed())
+                .deliveryDate(o.getDeliveryDate())
                 .items(items)
                 .build();
     }

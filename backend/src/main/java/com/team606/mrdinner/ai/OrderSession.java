@@ -1,6 +1,8 @@
 package com.team606.mrdinner.ai;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,7 +204,13 @@ public class OrderSession {
             // 추가 없음 → 주문 종료
             // -----------------------------
             case "no_additional":
-                this.output = "네 그럼 정해주신 날짜로 배송해드리겠습니다.";
+                if (this.eventDate != null && !this.eventDate.isEmpty()) {
+                    this.output = "네 알겠습니다. " + this.eventDate + "에 배송해드리겠습니다.";
+                } else {
+                    // 날짜가 없으면 오늘 날짜로 기본 설정
+                    this.eventDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    this.output = "네 알겠습니다. " + this.eventDate + "에 배송해드리겠습니다.";
+                }
                 this.checkEnd = true;
                 break;
 
@@ -305,9 +313,39 @@ public class OrderSession {
             // -----------------------------
             case "occasion":
                 this.output = "정말 축하드려요! 프렌치 디너나 샴페인 축제 디너는 어떠세요?";
-                this.eventDate = result.getDate();
+                // "오늘", "내일", "모레" -> 실제 날짜로 변환
+                this.eventDate = convertToActualDate(result.getDate());
                 break;
         }
+    }
+
+    // =================================================================
+    // 날짜 변환: "오늘", "내일", "모레" -> 실제 날짜 (yyyy-MM-dd)
+    // =================================================================
+    private String convertToActualDate(String dateKeyword) {
+        if (dateKeyword == null || dateKeyword.isEmpty()) {
+            return null;
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate targetDate;
+
+        switch (dateKeyword.trim()) {
+            case "오늘":
+                targetDate = today;
+                break;
+            case "내일":
+                targetDate = today.plusDays(1);
+                break;
+            case "모레":
+                targetDate = today.plusDays(2);
+                break;
+            default:
+                // 오늘, 내일, 모레 외의 값은 무시 (null 반환)
+                return null;
+        }
+
+        return targetDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     // Getters

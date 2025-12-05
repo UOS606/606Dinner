@@ -49,6 +49,21 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
   const [coffeeUnit, setCoffeeUnit] = useState("잔");
   const [showAddons, setShowAddons] = useState(false);
 
+  // 배송 희망 날짜 (오늘, 내일, 모레)
+  const today = new Date();
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const dateOptions = [
+    { label: "오늘", value: formatDate(today) },
+    { label: "내일", value: formatDate(new Date(today.getTime() + 86400000)) },
+    { label: "모레", value: formatDate(new Date(today.getTime() + 172800000)) },
+  ];
+  const [selectedDate, setSelectedDate] = useState(dateOptions[0].value);
+
   useEffect(() => {
     // 공통 초기화 함수: TEST_MENU_ITEMS 기반으로 수량/메뉴 설정
     const initFromTestData = () => {
@@ -244,6 +259,7 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
       // address, name은 테스트에서는 내 이름, 주소가 가지만,
       // 실제로는 백에서 채워줘야 하는 내용
       isCouponUsed: null,
+      deliveryDate: selectedDate, // 배송 희망 날짜 (yyyy-MM-dd)
     };
 
     if (isForTest) {
@@ -324,6 +340,24 @@ const OrderModal = ({ menu, onClose, isLoggedIn, onShowLogin, setHidden }) => {
                 onClick={() => setSelectedStyle(style)}
               >
                 {style.charAt(0).toUpperCase() + style.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 배송 희망 날짜 선택 */}
+        <div className={styles.styleRow}>
+          <span>배송 날짜</span>
+          <div className={styles.styleBtnWrapper}>
+            {dateOptions.map((opt) => (
+              <button
+                key={opt.value}
+                className={`${styles.styleBtn} ${
+                  selectedDate === opt.value ? styles.activeStyle : ""
+                }`}
+                onClick={() => setSelectedDate(opt.value)}
+              >
+                {opt.label} ({opt.value.slice(5)})
               </button>
             ))}
           </div>

@@ -360,18 +360,10 @@ const Assign = () => {
                   </li>
                 ))}
               </ul>
-              <p>고객 이름: {order.name}</p>
-              <p>고객 아이디: {order.id}</p>
               <p>
-                주문 접수:{" "}
-                {order.orderedTime
-                  ? new Date(order.orderedTime).toLocaleString("ko-KR", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                배달 요청 날짜:{" "}
+                {order.deliveryDate
+                  ? order.deliveryDate
                   : "-"}
               </p>
               <p>

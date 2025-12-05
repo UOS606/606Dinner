@@ -4,6 +4,7 @@ import com.team606.mrdinner.db.entity.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,9 @@ public class Order {
     /** 주문 시점 배송지(기본 주소 또는 입력 주소) */
     @Column(length = 255)
     private String address;
+
+    /** 배송 희망 날짜 */
+    private LocalDate deliveryDate;
 
     @OneToMany(mappedBy="order", cascade=CascadeType.ALL, orphanRemoval=true)
     @Builder.Default

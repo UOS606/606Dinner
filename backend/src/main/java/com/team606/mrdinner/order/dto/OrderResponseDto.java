@@ -2,6 +2,7 @@ package com.team606.mrdinner.order.dto;
 
 import lombok.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,4 +23,5 @@ public class OrderResponseDto {
     private String address;         // Cart.jsx 주문 시 prompt에 사용
     private List<OrderItemDto> items;
     private boolean isCouponUsed;
+    private LocalDate deliveryDate; // 배송 희망 날짜
 }

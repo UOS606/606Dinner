@@ -1,6 +1,7 @@
 package com.team606.mrdinner.order.dto;
 
 import lombok.*;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -16,6 +17,8 @@ public class OrderRequestDto {
     private OffsetDateTime orderedTime;
     private OffsetDateTime cookedTime;
     private OffsetDateTime deliveredTime;
+
+    private LocalDate deliveryDate; // 배송 희망 날짜 (yyyy-MM-dd)
 
     private List<OrderItemRequestDto> items;
 }

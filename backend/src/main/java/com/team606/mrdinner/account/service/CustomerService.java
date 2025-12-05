@@ -42,4 +42,9 @@ public class CustomerService {
     public boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
     }
+
+    @Transactional(readOnly = true)
+    public Customer findByUsername(String username) {
+        return repository.findByUsername(username).orElse(null);
+    }
 }
