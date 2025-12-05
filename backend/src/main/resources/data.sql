@@ -16,26 +16,26 @@ ON DUPLICATE KEY UPDATE
 -- =========================
 -- style_surcharges (스타일별 기본가산비용)
 -- =========================
-INSERT INTO style_surcharges(style_id, surcharge_type, surcharge_value)
+INSERT INTO style_surcharges(style_id, surcharge_type, value)
 SELECT s.id, 'FLAT', 0
 FROM styles s
 WHERE s.code='DEFAULT'
 ON DUPLICATE KEY UPDATE
-  surcharge_value = VALUES(surcharge_value);
+  value = VALUES(value);
 
-INSERT INTO style_surcharges(style_id, surcharge_type, surcharge_value)
+INSERT INTO style_surcharges(style_id, surcharge_type, value)
 SELECT s.id, 'FLAT', 5000
 FROM styles s
 WHERE s.code='GRAND'
 ON DUPLICATE KEY UPDATE
-  surcharge_value = VALUES(surcharge_value);
+  value = VALUES(value);
 
-INSERT INTO style_surcharges(style_id, surcharge_type, surcharge_value)
+INSERT INTO style_surcharges(style_id, surcharge_type, value)
 SELECT s.id, 'FLAT', 12000
 FROM styles s
 WHERE s.code='DELUXE'
 ON DUPLICATE KEY UPDATE
-  surcharge_value = VALUES(surcharge_value);
+  value = VALUES(value);
 
 -- =========================
 -- units
