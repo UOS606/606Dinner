@@ -62,6 +62,7 @@ classDiagram
     order_pkg --> db : uses
     order_pkg --> ai : uses
     order_pkg --> account : uses
+    order_pkg --> management : uses
     management --> db : uses
 ```
 

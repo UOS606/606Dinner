@@ -27,6 +27,9 @@ classDiagram
         <<interface>>
     }
 
+    class IngredientService["IngredientService (from management.service)"] {
+    }
+
     class AIService["AIService (from ai)"] {
     }
     class OrderResult["OrderResult (from ai)"] {
@@ -114,6 +117,7 @@ classDiagram
         -UnitRepository unitRepository
         -ItemUnitPriceRepository itemUnitPriceRepository
         -OrderRepository orderRepository
+        -IngredientService ingredientService
         +createOrder(OrderRequestDto) CartOrderResponseDto
         +getCartedOrders(String) List
         +getMyOrders(String) List
@@ -123,6 +127,7 @@ classDiagram
         +useCoupons(String, int) void
         +getAllOrdersForAdmin() List
         +updateStatus(String, Instant, String) void
+        -deductIngredients(Order) void
     }
 
     class VoiceService {
@@ -168,6 +173,7 @@ classDiagram
     OrderService --> StyleRepository : uses
     OrderService --> StyleSurchargeRepository : uses
     OrderService --> ItemUnitPriceRepository : uses
+    OrderService --> IngredientService : uses
 
     VoiceService --> AIService : uses
     VoiceService --> OrderService : uses

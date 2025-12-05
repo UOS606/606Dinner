@@ -27,6 +27,7 @@ classDiagram
         -IngredientRepository ingredientRepository
         +getAll() Map
         +add(Map) void
+        +deduct(Map) void
         +applyOrder(IngredientOrder) void
     }
 
