@@ -43,7 +43,19 @@ public class OrderService {
         Style style = styleRepository.findByCode(styleCode)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 스타일: " + req.getStyle()));
 
-        // 3) 주문 헤더 생성
+        // 3) 배송지 결정
+        //    - action이 carted인 경우: 장바구니 상태이므로 주소는 굳이 세팅하지 않음(지금 UX 유지)
+        //    - 그 외 (바로 주문/음성 주문 등)에서 address가 비어 있으면 회원 기본 주소를 사용
+        boolean isCarted = "carted".equalsIgnoreCase(req.getAction());
+        String resolvedAddress = req.getAddress();
+
+        if (!isCarted) {
+            if (resolvedAddress == null || resolvedAddress.isBlank()) {
+                resolvedAddress = customer.getAddress();
+            }
+        }
+
+        // 4) 주문 헤더 생성
         Order order = Order.builder()
                 .customer(customer)
                 .style(style)
@@ -54,11 +66,12 @@ public class OrderService {
                 .cookedTime(req.getCookedTime())
                 .deliveredTime(req.getDeliveredTime())
                 .totalPrice(0)
+                .address(resolvedAddress)
                 .build();
 
         int subtotal = 0;
 
-        // 4) 라인 생성
+        // 5) 라인 생성
         for (OrderItemRequestDto lineReq : req.getItems()) {
             if (lineReq.getQty() <= 0) continue;
 
@@ -86,14 +99,14 @@ public class OrderService {
             order.addItem(oi);
         }
 
-        // 5) 스타일 가산
+        // 6) 스타일 가산
         int total = applyStyleSurcharge(subtotal, style);
         order.setTotalPrice(total);
 
-        // 6) 저장
+        // 7) 저장
         orderRepository.save(order);
 
-        // 7) 응답 DTO
+        // 8) 응답 DTO
         if (order.getCartedTime() == null) {
             order.setCartedTime(OffsetDateTime.now(ZoneOffset.UTC));
         }
@@ -281,6 +294,12 @@ public class OrderService {
         if (!"ordered".equalsIgnoreCase(body.getAction())) {
             throw new IllegalArgumentException("지원하지 않는 action");
         }
+
+        // 주문자 기본 주소 로드
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("회원 없음"));
+        String defaultAddress = customer.getAddress();
+
         for (OrderUpdateRequestDto upd : body.getOrders()) {
             OffsetDateTime cartedTimeUtc = upd.getCartedTime().atOffset(ZoneOffset.UTC); // ★ 변환
 
@@ -296,8 +315,16 @@ public class OrderService {
             );
 
             order.setCouponUsed(upd.isCouponUsed());
+
+            // 1순위: 사용자가 새로 입력한 주소
             if (upd.getAddress() != null && !upd.getAddress().isBlank()) {
                 order.setAddress(upd.getAddress());
+            }
+            // 2순위: 주문에 주소가 아직 없으면 기본 주소 사용
+            else if (order.getAddress() == null || order.getAddress().isBlank()) {
+                if (defaultAddress != null && !defaultAddress.isBlank()) {
+                    order.setAddress(defaultAddress);
+                }
             }
         }
         // 트랜잭션 종료 시 flush
